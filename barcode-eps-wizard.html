@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Century Italia - Generatore Barcode EPS</title>
+    
+    <!-- SheetJS per leggere Excel -->
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    
+    <!-- JSZip per creare file ZIP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #fafafa;
+            min-height: 100vh;
+            padding: 16px;
+            color: #1a1a1a;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e5e5e5;
+            overflow: hidden;
+        }
+        
+        .header {
+            padding: 32px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .subtitle {
+            color: #737373;
+            font-size: 15px;
+            font-weight: 400;
+        }
+        
+        .content {
+            padding: 32px;
+        }
+        
+        .upload-area {
+            border: 2px dashed #d4d4d4;
+            border-radius: 8px;
+            padding: 48px 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #fafafa;
+        }
+        
+        .upload-area:hover {
+            border-color: #3b82f6;
+            background: #f0f9ff;
+        }
+        
+        .upload-area.dragover {
+            border-color: #3b82f6;
+            background: #dbeafe;
+            border-style: solid;
+        }
+        
+        .upload-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 64px;
+            height: 64px;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e5e5e5;
+            margin-bottom: 16px;
+        }
+        
+        .upload-text {
+            font-size: 16px;
+            font-weight: 500;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+        
+        .upload-hint {
+            font-size: 14px;
+            color: #737373;
+        }
+        
+        #fileInput {
+            display: none;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        
+        .btn:hover {
+            background: #2563eb;
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .btn:disabled {
+            background: #e5e5e5;
+            color: #a3a3a3;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #1a1a1a;
+            border: 1px solid #e5e5e5;
+        }
+        
+        .btn-secondary:hover {
+            background: #fafafa;
+            border-color: #d4d4d4;
+        }
+        
+        .progress-container {
+            display: none;
+            margin-top: 24px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #3b82f6;
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+        
+        .progress-text {
+            font-size: 13px;
+            color: #737373;
+            text-align: center;
+        }
+        
+        .stats {
+            display: none;
+            margin-top: 24px;
+            padding: 20px;
+            background: #fafafa;
+            border-radius: 8px;
+            border: 1px solid #e5e5e5;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 24px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 13px;
+            color: #737373;
+            font-weight: 400;
+        }
+        
+        .preview {
+            display: none;
+            margin-top: 24px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+        
+        .preview-item {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            background: white;
+            border-bottom: 1px solid #e5e5e5;
+            transition: background 0.2s ease;
+        }
+        
+        .preview-item:last-child {
+            border-bottom: none;
+        }
+        
+        .preview-item:hover {
+            background: #fafafa;
+        }
+        
+        .preview-status {
+            margin-right: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .preview-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .preview-code {
+            font-weight: 500;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+        
+        .preview-number {
+            font-size: 13px;
+            color: #737373;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', monospace;
+        }
+        
+        .preview-error {
+            color: #dc2626;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 24px;
+            font-size: 14px;
+            display: none;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .alert-success {
+            background: #f0fdf4;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+        }
+        
+        .alert-error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+        
+        .footer {
+            padding: 24px 32px;
+            text-align: center;
+            color: #a3a3a3;
+            font-size: 13px;
+            border-top: 1px solid #e5e5e5;
+            background: #fafafa;
+        }
+        
+        /* Responsive */
+        @media (max-width: 640px) {
+            .header {
+                padding: 24px 20px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 20px;
+            }
+            
+            .subtitle {
+                font-size: 14px;
+            }
+            
+            .upload-area {
+                padding: 32px 16px;
+            }
+            
+            .upload-icon {
+                width: 56px;
+                height: 56px;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 16px;
+            }
+            
+            .stat-number {
+                font-size: 24px;
+            }
+            
+            .footer {
+                padding: 20px;
+            }
+        }
+        
+        /* Scrollbar personalizzata */
+        .preview::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .preview::-webkit-scrollbar-track {
+            background: #f5f5f5;
+        }
+        
+        .preview::-webkit-scrollbar-thumb {
+            background: #d4d4d4;
+            border-radius: 4px;
+        }
+        
+        .preview::-webkit-scrollbar-thumb:hover {
+            background: #a3a3a3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <i data-lucide="barcode" style="color: #3b82f6;"></i>
+                Generatore Barcode EPS
+            </h1>
+            <p class="subtitle">Carica il file Excel o CSV con i codici articolo e barcode</p>
+        </div>
+        
+        <div class="content">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">
+                    <i data-lucide="upload" size="32" stroke-width="1.5" style="color: #3b82f6;"></i>
+                </div>
+                <div class="upload-text">Trascina il file qui o clicca per selezionare</div>
+                <div class="upload-hint">Supporta file Excel (.xlsx, .xls) e CSV</div>
+                <input type="file" id="fileInput" accept=".xlsx,.xls,.csv">
+            </div>
+            
+            <div class="stats" id="stats">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalCount">0</div>
+                        <div class="stat-label">Barcode totali</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="successCount">0</div>
+                        <div class="stat-label">Generati</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="errorCount">0</div>
+                        <div class="stat-label">Errori</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="actions">
+                <button class="btn" id="generateBtn" disabled>
+                    <i data-lucide="play" size="18"></i>
+                    Genera Barcode EPS
+                </button>
+                <button class="btn btn-secondary" id="downloadAllBtn" style="display:none;">
+                    <i data-lucide="download" size="18"></i>
+                    Scarica tutti
+                </button>
+            </div>
+            
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">0 / 0</div>
+            </div>
+            
+            <div class="alert alert-success" id="successAlert">
+                <i data-lucide="check-circle" size="20"></i>
+                <span id="successText"></span>
+            </div>
+            <div class="alert alert-error" id="errorAlert">
+                <i data-lucide="alert-circle" size="20"></i>
+                <span id="errorText"></span>
+            </div>
+            
+            <div class="preview" id="preview"></div>
+        </div>
+        
+        <div class="footer">
+            <div style="margin-bottom: 8px;"> © 2026 Chiara Berti 13 </div>
+            <div style="color: #d4d4d4;">File generati in formato PostScript compatibili con Adobe Illustrator</div>
+        </div>
+    </div>
+
+    <script>
+        // Inizializza le icone Lucide
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+        });
+        
+        let currentData = [];
+        let generatedBarcodes = [];
+        
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const generateBtn = document.getElementById('generateBtn');
+        const downloadAllBtn = document.getElementById('downloadAllBtn');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const stats = document.getElementById('stats');
+        const preview = document.getElementById('preview');
+        const successAlert = document.getElementById('successAlert');
+        const errorAlert = document.getElementById('errorAlert');
+        
+        // Upload area events
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file) handleFile(file);
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) handleFile(file);
+        });
+        
+        function handleFile(file) {
+            const reader = new FileReader();
+            
+            reader.onload = (e) => {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                    
+                    currentData = jsonData;
+                    document.getElementById('totalCount').textContent = jsonData.length;
+                    generateBtn.disabled = false;
+                    stats.style.display = 'block';
+                    
+                    showAlert('success', `File caricato con successo! ${jsonData.length} righe trovate.`);
+                } catch (error) {
+                    showAlert('error', `Errore nella lettura del file: ${error.message}`);
+                }
+            };
+            
+            reader.readAsArrayBuffer(file);
+        }
+        
+        generateBtn.addEventListener('click', generateBarcodes);
+        
+        async function generateBarcodes() {
+            if (currentData.length === 0) return;
+            
+            generatedBarcodes = [];
+            progressContainer.style.display = 'block';
+            preview.style.display = 'block';
+            preview.innerHTML = '';
+            generateBtn.disabled = true;
+            downloadAllBtn.style.display = 'none';
+            
+            let successCount = 0;
+            let errorCount = 0;
+            
+            for (let i = 0; i < currentData.length; i++) {
+                const item = currentData[i];
+                const codiceArticolo = String(item['Codice articolo'] || '').trim();
+                const codiceBarcode = String(item['Barcode'] || '').trim().replace('.0', '');
+                
+                try {
+                    const epsContent = generateEPS(codiceBarcode, codiceArticolo);
+                    generatedBarcodes.push({
+                        filename: `${codiceArticolo}.eps`,
+                        content: epsContent,
+                        codiceArticolo,
+                        codiceBarcode
+                    });
+                    
+                    addPreviewItem(codiceArticolo, codiceBarcode, true);
+                    successCount++;
+                } catch (error) {
+                    addPreviewItem(codiceArticolo, codiceBarcode, false, error.message);
+                    errorCount++;
+                }
+                
+                const progress = ((i + 1) / currentData.length) * 100;
+                progressFill.style.width = progress + '%';
+                progressText.textContent = `${i + 1} / ${currentData.length}`;
+                
+                document.getElementById('successCount').textContent = successCount;
+                document.getElementById('errorCount').textContent = errorCount;
+                
+                // Piccola pausa per non bloccare l'UI
+                if (i % 10 === 0) {
+                    await new Promise(resolve => setTimeout(resolve, 10));
+                }
+            }
+            
+            generateBtn.disabled = false;
+            downloadAllBtn.style.display = 'inline-flex';
+            showAlert('success', `Generazione completata! ${successCount} barcode generati con successo.`);
+        }
+        
+        function calculateEAN13CheckDigit(code12) {
+            let sumOdd = 0;
+            let sumEven = 0;
+            
+            for (let i = 0; i < 12; i++) {
+                if (i % 2 === 0) {
+                    sumOdd += parseInt(code12[i]);
+                } else {
+                    sumEven += parseInt(code12[i]);
+                }
+            }
+            
+            const total = sumOdd + (sumEven * 3);
+            const remainder = total % 10;
+            return remainder === 0 ? 0 : 10 - remainder;
+        }
+        
+        function encodeEAN13(code) {
+            const L_codes = {
+                '0': '0001101', '1': '0011001', '2': '0010011', '3': '0111101',
+                '4': '0100011', '5': '0110001', '6': '0101111', '7': '0111011',
+                '8': '0110111', '9': '0001011'
+            };
+            
+            const G_codes = {
+                '0': '0100111', '1': '0110011', '2': '0011011', '3': '0100001',
+                '4': '0011101', '5': '0111001', '6': '0000101', '7': '0010001',
+                '8': '0001001', '9': '0010111'
+            };
+            
+            const R_codes = {
+                '0': '1110010', '1': '1100110', '2': '1101100', '3': '1000010',
+                '4': '1011100', '5': '1001110', '6': '1010000', '7': '1000100',
+                '8': '1001000', '9': '1110100'
+            };
+            
+            const firstDigitPatterns = [
+                'LLLLLL', 'LLGLGG', 'LLGGLG', 'LLGGGL', 'LGLLGG',
+                'LGGLLG', 'LGGGLL', 'LGLGLG', 'LGLGGL', 'LGGLGL'
+            ];
+            
+            if (code.length === 12) {
+                code = code + calculateEAN13CheckDigit(code);
+            } else if (code.length !== 13) {
+                throw new Error(`Codice deve avere 12 o 13 cifre, ha ${code.length}`);
+            }
+            
+            const firstDigit = code[0];
+            const pattern = firstDigitPatterns[parseInt(firstDigit)];
+            
+            let bars = '101'; // Start
+            
+            for (let i = 0; i < 6; i++) {
+                const digit = code[i + 1];
+                bars += pattern[i] === 'L' ? L_codes[digit] : G_codes[digit];
+            }
+            
+            bars += '01010'; // Center
+            
+            for (let i = 0; i < 6; i++) {
+                const digit = code[i + 7];
+                bars += R_codes[digit];
+            }
+            
+            bars += '101'; // End
+            
+            return bars;
+        }
+        
+        function generateEPS(codiceBarcode, codiceArticolo) {
+            const bars = encodeEAN13(codiceBarcode);
+            const barWidth = 1.0;
+            const barHeight = 50.0;
+            const textHeight = 5.0;
+            const quietZone = 10.0;
+            
+            const totalWidth = bars.length * barWidth + (2 * quietZone);
+            const totalHeight = barHeight + textHeight + 6.0;
+            
+            let eps = `%!PS-Adobe-3.0 EPSF-3.0
+%%Creator: Century Italia Barcode Generator
+%%Title: ${codiceBarcode}
+%%Pages: 0
+%%BoundingBox: 0 0 ${Math.round(totalWidth)} ${Math.round(totalHeight)}
+%%EndComments
+/TL { setlinewidth moveto lineto stroke } bind def
+/TC { moveto 0 360 arc 360 0 arcn fill } bind def
+/TH { 0 setlinewidth moveto lineto lineto lineto lineto lineto closepath fill } bind def
+/TB { 2 copy } bind def
+/TR { newpath 4 1 roll exch moveto 1 index 0 rlineto 0 exch rlineto neg 0 rlineto closepath fill } bind def
+/TE { pop pop } bind def
+newpath
+0.00 0.00 0.00 setrgbcolor
+1.00 1.00 1.00 setrgbcolor
+${totalHeight.toFixed(2)} 0.00 TB 0.00 ${totalWidth.toFixed(2)} TR
+TE
+0.00 0.00 0.00 setrgbcolor
+`;
+            
+            // Disegna le barre
+            let xPos = quietZone;
+            eps += `${barHeight.toFixed(2)} ${(textHeight + 5.0).toFixed(2)} TB `;
+            
+            for (let i = 0; i < bars.length; i++) {
+                if (bars[i] === '1') {
+                    eps += `${xPos.toFixed(2)} ${barWidth.toFixed(2)} TR\n`;
+                    if (i < bars.length - 1) {
+                        eps += 'TB ';
+                    }
+                }
+                xPos += barWidth;
+            }
+            
+            eps += 'TE\n';
+            
+            // Guard bars (più lunghe)
+            eps += `0.00 0.00 0.00 setrgbcolor\n`;
+            eps += `${textHeight.toFixed(2)} ${textHeight.toFixed(2)} TB `;
+            
+            eps += `${quietZone.toFixed(2)} ${barWidth.toFixed(2)} TR\n`;
+            eps += `TB ${(quietZone + barWidth * 2).toFixed(2)} ${barWidth.toFixed(2)} TR\n`;
+            
+            const centerX = quietZone + (bars.length / 2 * barWidth) - barWidth;
+            eps += `TB ${centerX.toFixed(2)} ${barWidth.toFixed(2)} TR\n`;
+            eps += `TB ${(centerX + barWidth * 2).toFixed(2)} ${barWidth.toFixed(2)} TR\n`;
+            
+            const endX = quietZone + (bars.length - 3) * barWidth;
+            eps += `TB ${endX.toFixed(2)} ${barWidth.toFixed(2)} TR\n`;
+            eps += `TB ${(endX + barWidth * 2).toFixed(2)} ${barWidth.toFixed(2)} TR\n`;
+            eps += 'TE\n';
+            
+            // Testo
+            eps += `0.00 0.00 0.00 setrgbcolor
+matrix currentmatrix
+/Helvetica findfont
+11.00 scalefont setfont
+`;
+            
+            // Prima cifra
+            const firstDigitX = quietZone - 6.0;
+            eps += ` 0 0 moveto ${firstDigitX.toFixed(2)} 1.50 translate 0.00 rotate 0 0 moveto
+ (${codiceBarcode[0]}) stringwidth
+pop
+-2 div 0 rmoveto
+ (${codiceBarcode[0]}) show
+setmatrix
+`;
+            
+            // Prime 6 cifre
+            const leftText = codiceBarcode.substring(1, 7);
+            const leftTextX = quietZone + (bars.length / 4 * barWidth);
+            eps += `matrix currentmatrix
+/Helvetica findfont
+11.00 scalefont setfont
+ 0 0 moveto ${leftTextX.toFixed(2)} 1.50 translate 0.00 rotate 0 0 moveto
+ (${leftText}) stringwidth
+pop
+-2 div 0 rmoveto
+ (${leftText}) show
+setmatrix
+`;
+            
+            // Ultime 6 cifre
+            const rightText = codiceBarcode.substring(7, 13);
+            const rightTextX = quietZone + (3 * bars.length / 4 * barWidth);
+            eps += `matrix currentmatrix
+/Helvetica findfont
+11.00 scalefont setfont
+ 0 0 moveto ${rightTextX.toFixed(2)} 1.50 translate 0.00 rotate 0 0 moveto
+ (${rightText}) stringwidth
+pop
+-2 div 0 rmoveto
+ (${rightText}) show
+setmatrix
+
+showpage
+`;
+            
+            return eps;
+        }
+        
+        function addPreviewItem(codiceArticolo, codiceBarcode, success, errorMsg = '') {
+            const item = document.createElement('div');
+            item.className = 'preview-item';
+            
+            const statusIcon = success ? 
+                '<i data-lucide="check-circle-2" size="20" style="color: #22c55e;"></i>' :
+                '<i data-lucide="x-circle" size="20" style="color: #dc2626;"></i>';
+            
+            const downloadBtn = success ? 
+                `<button class="btn btn-secondary" style="padding: 8px 16px; font-size: 14px;" onclick="downloadSingle('${codiceArticolo}')">
+                    <i data-lucide="download" size="16"></i>
+                    Scarica
+                </button>` : '';
+            
+            item.innerHTML = `
+                <div class="preview-status">
+                    ${statusIcon}
+                </div>
+                <div class="preview-info">
+                    <div class="preview-code">${codiceArticolo}</div>
+                    <div class="preview-number">${codiceBarcode}</div>
+                    ${!success ? `<div class="preview-error">${errorMsg}</div>` : ''}
+                </div>
+                ${downloadBtn}
+            `;
+            
+            preview.appendChild(item);
+            lucide.createIcons(); // Re-render icons
+        }
+        
+        window.downloadSingle = function(codiceArticolo) {
+            const barcode = generatedBarcodes.find(b => b.codiceArticolo === codiceArticolo);
+            if (barcode) {
+                downloadFile(barcode.filename, barcode.content);
+            }
+        };
+        
+        function downloadFile(filename, content) {
+            const blob = new Blob([content], { type: 'application/postscript' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        downloadAllBtn.addEventListener('click', async () => {
+            showAlert('success', 'Creazione file ZIP in corso...');
+            
+            try {
+                // Crea un nuovo file ZIP
+                const zip = new JSZip();
+                
+                // Aggiungi tutti i barcode allo ZIP
+                for (const barcode of generatedBarcodes) {
+                    zip.file(barcode.filename, barcode.content);
+                }
+                
+                // Genera il file ZIP
+                const zipBlob = await zip.generateAsync({ 
+                    type: 'blob',
+                    compression: 'DEFLATE',
+                    compressionOptions: { level: 9 }
+                });
+                
+                // Scarica il file ZIP
+                const url = URL.createObjectURL(zipBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `barcode_eps_${new Date().getTime()}.zip`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showAlert('success', `File ZIP creato con successo! ${generatedBarcodes.length} barcode inclusi.`);
+            } catch (error) {
+                showAlert('error', `Errore nella creazione dello ZIP: ${error.message}`);
+            }
+        });
+        
+        function showAlert(type, message) {
+            const alert = type === 'success' ? successAlert : errorAlert;
+            const textElement = type === 'success' ? document.getElementById('successText') : document.getElementById('errorText');
+            
+            textElement.textContent = message;
+            alert.style.display = 'flex';
+            
+            // Re-render icons
+            lucide.createIcons();
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
