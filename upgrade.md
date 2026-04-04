@@ -277,9 +277,10 @@ Done quando: normalizzazione numerica esplicita e testata.
 Descrizione: oggi la logica dipende da chiavi esatte in runtime.  
 Done quando: blocco preventivo con messaggio di errore chiaro.
 
-[ ] Evitare collisioni su `downloadSingle` con codici articolo duplicati  
+[x] Evitare collisioni su `downloadSingle` con codici articolo duplicati  
 Descrizione: ricerca per chiave non univoca può scaricare file errato.  
 Done quando: identificatore univoco interno per ogni riga generata.
+Nota avanzamento: introdotto identificatore interno progressivo (`id`) per ciascun barcode generato e aggiornato il download singolo per usare l'id univoco invece del `Codice articolo`.
 
 [ ] Migliorare robustezza rendering dinamico con `innerHTML`  
 Descrizione: ridurre rischio di injection e bug HTML con contenuti non fidati.  
