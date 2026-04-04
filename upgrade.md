@@ -86,9 +86,10 @@ Nota avanzamento: aggiunto `.editorconfig` con regole cross-platform (UTF-8, LF,
 
 ### B. Backend logic (client-side core)
 
-[ ] Estrarre la logica EAN-13 in modulo isolato testabile  
+[x] Estrarre la logica EAN-13 in modulo isolato testabile  
 Descrizione: separare `calculateEAN13CheckDigit`, `encodeEAN13`, generator EPS dal DOM.  
 Done quando: modulo puro richiamato dalla UI e coperto da unit test.
+Nota avanzamento: creata la libreria pura `core/ean13.mjs` con check digit/encoding/generazione EPS, importata da `app.js` (script ES module) e coperta da test unitari dedicati in `tests/unit/ean13-core.test.mjs`.
 
 [ ] Formalizzare contratto input/output del generatore EPS  
 Descrizione: definire precondizioni (cifre ammesse, lunghezza, caratteri) e output atteso.  
