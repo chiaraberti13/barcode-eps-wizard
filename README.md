@@ -11,6 +11,7 @@ Standalone web app to generate EAN-13 barcodes in EPS format from Excel. No inst
 This package contains:
 - **`barcode-eps-wizard.html`** - The complete web application
 - **`example.xlsx`** - Sample Excel file with correct structure
+- **`upgrade.md`** - Technical upgrade checklist and roadmap
 - **`LICENSE`** - MIT License
 - **`README.md`** - This documentation (English + Italian)
 
@@ -34,7 +35,7 @@ This is a **completely standalone** web app. You don't need to install:
 2. It will automatically open in your default browser
 3. Works with: Chrome, Firefox, Safari, Edge
 
-💡 **Note:** Internet connection required only for first load (to download icons). After first launch, the app can work offline.
+💡 **Note:** Internet connection is required on first load to fetch CDN libraries (SheetJS, JSZip, Lucide). After a successful load, offline usage depends on your browser cache policy.
 
 ### Step 2: Prepare your Excel file
 Use `example.xlsx` as an example. The structure must be:
@@ -137,12 +138,12 @@ The generated ZIP file contains all compressed barcodes. Approximate size:
 2. Select "Open with"
 3. Choose your browser (Chrome recommended)
 
-### Icons don't show up
-**Cause:** Internet connection issue  
+### Interface or export features don't work on first launch
+**Cause:** CDN libraries not reachable (SheetJS, JSZip, Lucide).  
 **Solution:**
-1. Check your connection
+1. Check your internet connection
 2. Reload the page (F5 or Cmd+R)
-3. App works anyway even without icons
+3. If your network blocks CDNs, use another network or host libraries locally
 
 ### Error "Code must have 12 or 13 digits"
 **Cause:** Invalid barcode in Excel file  
