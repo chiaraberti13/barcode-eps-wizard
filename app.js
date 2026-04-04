@@ -10,6 +10,12 @@ const REQUIRED_COLUMNS = {
     codiceArticolo: ['codicearticolo'],
     barcode: ['barcode']
 };
+const INVALID_FILENAME_CHARS_REGEX = /[<>:"/\\|?*\u0000-\u001f]/g;
+const WINDOWS_RESERVED_NAMES = new Set([
+    'CON', 'PRN', 'AUX', 'NUL',
+    'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9',
+    'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9'
+]);
 
 const uploadArea = document.getElementById('uploadArea');
 const fileInput = document.getElementById('fileInput');
@@ -102,10 +108,11 @@ async function generateBarcodes() {
         try {
             const normalizedBarcode = normalizeBarcode(rawBarcode, rowNumber);
             const epsContent = generateEPS(normalizedBarcode, codiceArticolo);
+            const sanitizedFilename = sanitizeEpsFilename(codiceArticolo, rowNumber);
             const barcodeId = `barcode-${barcodeSequence++}`;
             generatedBarcodes.push({
                 id: barcodeId,
-                filename: `${codiceArticolo}.eps`,
+                filename: sanitizedFilename,
                 content: epsContent,
                 codiceArticolo,
                 codiceBarcode: normalizedBarcode
@@ -229,6 +236,35 @@ function normalizeBarcode(rawBarcode, rowNumber) {
     }
 
     return `${normalized}${calculateEAN13CheckDigit(normalized)}`;
+}
+
+function sanitizeEpsFilename(codiceArticolo, rowNumber) {
+    const sourceValue = String(codiceArticolo || '').trim();
+    const normalizedValue = sourceValue
+        .normalize('NFKD')
+        .replace(/[\u0300-\u036f]/g, '');
+
+    let safeName = normalizedValue
+        .replace(INVALID_FILENAME_CHARS_REGEX, '_')
+        .replace(/\s+/g, '_')
+        .replace(/[. ]+$/g, '')
+        .replace(/_+/g, '_')
+        .replace(/^_+|_+$/g, '');
+
+    if (!safeName) {
+        safeName = `articolo_riga_${rowNumber}`;
+    }
+
+    if (WINDOWS_RESERVED_NAMES.has(safeName.toUpperCase())) {
+        safeName = `${safeName}_file`;
+    }
+
+    const maxLength = 120;
+    if (safeName.length > maxLength) {
+        safeName = safeName.slice(0, maxLength).replace(/[. ]+$/g, '');
+    }
+
+    return `${safeName}.eps`;
 }
 
 function encodeEAN13(code) {
