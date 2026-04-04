@@ -186,9 +186,10 @@ Done quando: scrolling e interazioni restano fluidi su 5k+ elementi.
 
 ### H. Documentazione / Release
 
-[ ] Correggere README rispetto ai nomi reali dei file nel repo  
+[x] Correggere README rispetto ai nomi reali dei file nel repo  
 Descrizione: allineare package description e quick-start ai file presenti.  
 Done quando: un utente nuovo segue README senza ambiguità.
+Nota avanzamento: aggiornato elenco file pacchetto e note dipendenze CDN per coerenza con repository e comportamento reale.
 
 [ ] Aggiungere documentazione tecnica interna (architettura + decisioni)  
 Descrizione: facilitare onboarding di nuovi sviluppatori/agenti.  
