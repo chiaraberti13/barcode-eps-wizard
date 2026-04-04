@@ -69,9 +69,10 @@ Descrizione: preparare baseline manutenibile mantenendo comportamento invariato.
 Done quando: file separati e caricati correttamente, app funzionante end-to-end come oggi.
 Nota avanzamento: estratti CSS e JavaScript inline in `styles.css` e `app.js`, aggiornato l'HTML per caricare asset esterni mantenendo invariata la pipeline funzionale.
 
-[ ] Introdurre package manager e script standard (`lint`, `test`, `test:e2e`, `build-check`)  
+[x] Introdurre package manager e script standard (`lint`, `test`, `test:e2e`, `build-check`)  
 Descrizione: aggiungere toolchain minima per qualità continua.  
 Done quando: i comandi sono documentati ed eseguibili localmente.
+Nota avanzamento: aggiunto `package.json` con script standardizzati (`lint`, `test`, `test:e2e`, `build-check`), introdotti controlli automatici minimi in `scripts/` e `tests/`, documentati i comandi nel README e validati in locale.
 
 [ ] Configurare linting/formatting (JS, HTML, CSS)  
 Descrizione: imporre standard codice uniforme e prevenire errori banali.  

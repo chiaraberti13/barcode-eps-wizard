@@ -44,6 +44,25 @@ This repository includes an `.editorconfig` file to keep formatting consistent a
 - CSS classes: `kebab-case`
 - Files: `kebab-case` (except established filenames such as `README.md`)
 
+
+## 🛠️ LOCAL QUALITY TOOLING (OPTIONAL FOR CONTRIBUTORS)
+
+If you want repeatable quality checks during development, use Node.js 20+ and npm:
+
+```bash
+npm install
+npm run lint
+npm run test
+npm run test:e2e
+npm run build-check
+```
+
+**Script meaning:**
+- `npm run lint`: static checks for JavaScript, CSS and HTML
+- `npm run test`: unit smoke checks for core project assumptions
+- `npm run test:e2e`: end-to-end smoke check on core UI structure
+- `npm run build-check`: aggregate command (`lint` + `test`) for CI/local gate
+
 ## 🚀 HOW TO USE IN 3 STEPS
 
 ### Step 1: Open the application
