@@ -226,9 +226,10 @@ Descrizione: mitigare DoS client-side e consumo memoria eccessivo.
 Done quando: soglie hard/soft presenti e testate.
 Nota avanzamento: introdotte soglie hard (`MAX_UPLOAD_FILE_SIZE_BYTES = 5MB`, `MAX_PROCESSABLE_ROWS = 5000`) con blocco immediato e soglie soft (`SOFT_UPLOAD_FILE_SIZE_BYTES = 3MB`, `SOFT_PROCESSABLE_ROWS = 3000`) con avviso preventivo in UI per dataset pesanti.
 
-[ ] Centralizzare gestione errori senza leak di dettagli sensibili  
+[x] Centralizzare gestione errori senza leak di dettagli sensibili  
 Descrizione: distinguere errore tecnico interno da messaggio user-friendly.  
 Done quando: UI non espone stack trace o dettagli inutili.
+Nota avanzamento: introdotta gestione centralizzata errori (`handleError`) con logging tecnico su console per debug interno e messaggi utente sanitizzati tramite whitelist pattern/fallback, applicata ai flussi di validazione file, lettura file e creazione ZIP.
 
 [ ] Definire policy dipendenze CDN e fallback offline sicuro  
 Descrizione: pin versioni, verificare integrità (SRI), prevedere fallback locale.  
