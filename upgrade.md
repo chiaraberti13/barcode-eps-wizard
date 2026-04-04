@@ -101,9 +101,10 @@ Done quando: nessun nome file invalido su Windows/macOS/Linux in test.
 
 ### C. Gestione dati (Excel/CSV)
 
-[ ] Validare presenza colonne richieste con confronto robusto  
+[x] Validare presenza colonne richieste con confronto robusto  
 Descrizione: supportare varianti comuni (spazi, maiuscole/minuscole) con normalizzazione controllata.  
 Done quando: file con header compatibili vengono accettati, gli altri rifiutati con errore chiaro.
+Nota avanzamento: introdotta risoluzione robusta delle colonne obbligatorie (`Codice articolo`, `Barcode`) con normalizzazione case-insensitive/trimmed, blocco preventivo in upload e mapping dati in struttura interna stabile.
 
 [x] Validare barcode con regex e normalizzazione sicura  
 Descrizione: accettare solo 12/13 cifre reali, prevenendo input sporco/ambiguo.  
@@ -273,9 +274,10 @@ Done quando: i nomi indicati in docs corrispondono ai file effettivi presenti.
 Descrizione: la pulizia corrente può produrre risultati inattesi su input anomali.  
 Done quando: normalizzazione numerica esplicita e testata.
 
-[ ] Gestire assenza colonne obbligatorie prima della generazione  
+[x] Gestire assenza colonne obbligatorie prima della generazione  
 Descrizione: oggi la logica dipende da chiavi esatte in runtime.  
 Done quando: blocco preventivo con messaggio di errore chiaro.
+Nota avanzamento: aggiunto controllo all’import; se manca una colonna obbligatoria il file viene rifiutato, la generazione resta disabilitata e viene mostrato un messaggio d’errore esplicito.
 
 [x] Evitare collisioni su `downloadSingle` con codici articolo duplicati  
 Descrizione: ricerca per chiave non univoca può scaricare file errato.  

@@ -6,6 +6,10 @@ document.addEventListener('DOMContentLoaded', () => {
 let currentData = [];
 let generatedBarcodes = [];
 let barcodeSequence = 0;
+const REQUIRED_COLUMNS = {
+    codiceArticolo: ['codicearticolo'],
+    barcode: ['barcode']
+};
 
 const uploadArea = document.getElementById('uploadArea');
 const fileInput = document.getElementById('fileInput');
@@ -52,15 +56,20 @@ function handleFile(file) {
             const workbook = XLSX.read(data, { type: 'array' });
             const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
             const jsonData = XLSX.utils.sheet_to_json(firstSheet);
-            
-            currentData = jsonData;
-            document.getElementById('totalCount').textContent = jsonData.length;
+
+            const preparedData = prepareDataRows(jsonData);
+
+            currentData = preparedData;
+            document.getElementById('totalCount').textContent = preparedData.length;
             generateBtn.disabled = false;
             stats.style.display = 'block';
-            
-            showAlert('success', `File caricato con successo! ${jsonData.length} righe trovate.`);
+
+            showAlert('success', `File caricato con successo! ${preparedData.length} righe trovate.`);
         } catch (error) {
             showAlert('error', `Errore nella lettura del file: ${error.message}`);
+            currentData = [];
+            generateBtn.disabled = true;
+            stats.style.display = 'none';
         }
     };
     
@@ -86,8 +95,8 @@ async function generateBarcodes() {
     for (let i = 0; i < currentData.length; i++) {
         const item = currentData[i];
         const rowNumber = i + 2;
-        const codiceArticolo = String(item['Codice articolo'] || '').trim();
-        const rawBarcode = item['Barcode'];
+        const codiceArticolo = String(item.codiceArticolo || '').trim();
+        const rawBarcode = item.barcode;
         const previewBarcode = rawBarcode === undefined || rawBarcode === null ? '' : String(rawBarcode).trim();
         
         try {
@@ -125,6 +134,53 @@ async function generateBarcodes() {
     generateBtn.disabled = false;
     downloadAllBtn.style.display = 'inline-flex';
     showAlert('success', `Generazione completata! ${successCount} barcode generati con successo.`);
+}
+
+function normalizeColumnName(name) {
+    return String(name || '')
+        .normalize('NFKD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, '')
+        .toLowerCase();
+}
+
+function resolveRequiredColumns(headers) {
+    const normalizedHeaders = new Map();
+
+    headers.forEach((header) => {
+        const normalized = normalizeColumnName(header);
+        if (normalized) {
+            normalizedHeaders.set(normalized, header);
+        }
+    });
+
+    const resolvedColumns = {};
+
+    for (const [field, acceptedNames] of Object.entries(REQUIRED_COLUMNS)) {
+        const matchedNormalizedName = acceptedNames.find((candidate) => normalizedHeaders.has(candidate));
+
+        if (!matchedNormalizedName) {
+            throw new Error(`Colonna obbligatoria mancante: ${field === 'codiceArticolo' ? 'Codice articolo' : 'Barcode'}.`);
+        }
+
+        resolvedColumns[field] = normalizedHeaders.get(matchedNormalizedName);
+    }
+
+    return resolvedColumns;
+}
+
+function prepareDataRows(jsonData) {
+    if (!Array.isArray(jsonData) || jsonData.length === 0) {
+        throw new Error('Il file non contiene righe dati.');
+    }
+
+    const headers = Object.keys(jsonData[0] || {});
+    const resolvedColumns = resolveRequiredColumns(headers);
+
+    return jsonData.map((row) => ({
+        codiceArticolo: row[resolvedColumns.codiceArticolo],
+        barcode: row[resolvedColumns.barcode]
+    }));
 }
 
 function calculateEAN13CheckDigit(code12) {
