@@ -104,9 +104,10 @@ Done quando: nessun nome file invalido su Windows/macOS/Linux in test.
 Descrizione: supportare varianti comuni (spazi, maiuscole/minuscole) con normalizzazione controllata.  
 Done quando: file con header compatibili vengono accettati, gli altri rifiutati con errore chiaro.
 
-[ ] Validare barcode con regex e normalizzazione sicura  
+[x] Validare barcode con regex e normalizzazione sicura  
 Descrizione: accettare solo 12/13 cifre reali, prevenendo input sporco/ambiguo.  
 Done quando: ogni riga invalida produce errore specifico e tracciabile.
+Nota avanzamento: aggiunta validazione centralizzata con regex numerica, normalizzazione sicura (trim/spazi/rimozione suffisso .0), verifica check digit su EAN-13 e messaggi errore per riga in preview.
 
 [ ] Introdurre report finale errori esportabile (CSV/JSON)  
 Descrizione: permettere correzione batch delle righe fallite.  
@@ -303,3 +304,7 @@ Done quando: rendering tramite nodi DOM/escaping centralizzato.
 - Validazione input robusta e copertura minima OWASP documentata.
 - UX consistente su mobile/tablet/desktop, accessibilità tastiera verificata.
 - README e documentazione tecnica completamente allineati al comportamento reale dell’app.
+
+
+### Bug/failure pre-esistenti rilevati
+- [ ] Possibile injection HTML/JS in preview/download: `codiceArticolo` viene interpolato in `innerHTML` e in `onclick` inline senza escaping (fuori scope del task corrente, da correggere con rendering DOM sicuro e listener non inline).
