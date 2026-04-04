@@ -495,39 +495,72 @@ showpage
 function addPreviewItem(codiceArticolo, codiceBarcode, success, errorMsg = '', barcodeId = '') {
     const item = document.createElement('div');
     item.className = 'preview-item';
-    
-    const statusIcon = success ? 
-        '<i data-lucide="check-circle-2" size="20" style="color: #22c55e;"></i>' :
-        '<i data-lucide="x-circle" size="20" style="color: #dc2626;"></i>';
-    
-    const downloadBtn = success ? 
-        `<button class="btn btn-secondary" style="padding: 8px 16px; font-size: 14px;" onclick="downloadSingle('${barcodeId}')">
-            <i data-lucide="download" size="16"></i>
-            Scarica
-        </button>` : '';
-    
-    item.innerHTML = `
-        <div class="preview-status">
-            ${statusIcon}
-        </div>
-        <div class="preview-info">
-            <div class="preview-code">${codiceArticolo}</div>
-            <div class="preview-number">${codiceBarcode}</div>
-            ${!success ? `<div class="preview-error">${errorMsg}</div>` : ''}
-        </div>
-        ${downloadBtn}
-    `;
-    
+
+    const statusContainer = document.createElement('div');
+    statusContainer.className = 'preview-status';
+    const statusIcon = document.createElement('i');
+    statusIcon.setAttribute('data-lucide', success ? 'check-circle-2' : 'x-circle');
+    statusIcon.setAttribute('size', '20');
+    statusIcon.style.color = success ? '#22c55e' : '#dc2626';
+    statusContainer.appendChild(statusIcon);
+
+    const infoContainer = document.createElement('div');
+    infoContainer.className = 'preview-info';
+
+    const articleCodeElement = document.createElement('div');
+    articleCodeElement.className = 'preview-code';
+    articleCodeElement.textContent = String(codiceArticolo || '');
+    infoContainer.appendChild(articleCodeElement);
+
+    const barcodeElement = document.createElement('div');
+    barcodeElement.className = 'preview-number';
+    barcodeElement.textContent = String(codiceBarcode || '');
+    infoContainer.appendChild(barcodeElement);
+
+    if (!success && errorMsg) {
+        const errorElement = document.createElement('div');
+        errorElement.className = 'preview-error';
+        errorElement.textContent = String(errorMsg);
+        infoContainer.appendChild(errorElement);
+    }
+
+    item.appendChild(statusContainer);
+    item.appendChild(infoContainer);
+
+    if (success) {
+        const downloadButton = document.createElement('button');
+        downloadButton.className = 'btn btn-secondary';
+        downloadButton.style.padding = '8px 16px';
+        downloadButton.style.fontSize = '14px';
+        downloadButton.type = 'button';
+
+        const downloadIcon = document.createElement('i');
+        downloadIcon.setAttribute('data-lucide', 'download');
+        downloadIcon.setAttribute('size', '16');
+
+        const buttonText = document.createTextNode(' Scarica');
+
+        downloadButton.appendChild(downloadIcon);
+        downloadButton.appendChild(buttonText);
+        downloadButton.addEventListener('click', () => {
+            downloadSingle(barcodeId);
+        });
+
+        item.appendChild(downloadButton);
+    }
+
     preview.appendChild(item);
     lucide.createIcons(); // Re-render icons
 }
 
-window.downloadSingle = function(barcodeId) {
+function downloadSingle(barcodeId) {
     const barcode = generatedBarcodes.find(b => b.id === barcodeId);
     if (barcode) {
         downloadFile(barcode.filename, barcode.content);
     }
-};
+}
+
+window.downloadSingle = downloadSingle;
 
 function downloadFile(filename, content) {
     const blob = new Blob([content], { type: 'application/postscript' });
