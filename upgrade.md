@@ -95,9 +95,10 @@ Done quando: documentazione tecnica e test su casi validi/non validi.
 Descrizione: decidere policy (sovrascrivi/blocca/suffisso progressivo) e applicarla.  
 Done quando: comportamento univoco e verificabile con test.
 
-[ ] Sanificare nomi file EPS generati  
+[x] Sanificare nomi file EPS generati  
 Descrizione: rimuovere o normalizzare caratteri non compatibili con filesystem.  
 Done quando: nessun nome file invalido su Windows/macOS/Linux in test.
+Nota avanzamento: introdotta sanitizzazione deterministica dei nomi file EPS con normalizzazione Unicode, rimozione caratteri non validi cross-platform, gestione nomi riservati Windows, fallback sicuro per valori vuoti e limite lunghezza filename.
 
 ### C. Gestione dati (Excel/CSV)
 
