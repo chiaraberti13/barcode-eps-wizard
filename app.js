@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 let currentData = [];
 let generatedBarcodes = [];
+let barcodeSequence = 0;
 
 const uploadArea = document.getElementById('uploadArea');
 const fileInput = document.getElementById('fileInput');
@@ -72,6 +73,7 @@ async function generateBarcodes() {
     if (currentData.length === 0) return;
     
     generatedBarcodes = [];
+    barcodeSequence = 0;
     progressContainer.style.display = 'block';
     preview.style.display = 'block';
     preview.innerHTML = '';
@@ -91,14 +93,16 @@ async function generateBarcodes() {
         try {
             const normalizedBarcode = normalizeBarcode(rawBarcode, rowNumber);
             const epsContent = generateEPS(normalizedBarcode, codiceArticolo);
+            const barcodeId = `barcode-${barcodeSequence++}`;
             generatedBarcodes.push({
+                id: barcodeId,
                 filename: `${codiceArticolo}.eps`,
                 content: epsContent,
                 codiceArticolo,
                 codiceBarcode: normalizedBarcode
             });
             
-            addPreviewItem(codiceArticolo, normalizedBarcode, true);
+            addPreviewItem(codiceArticolo, normalizedBarcode, true, '', barcodeId);
             successCount++;
         } catch (error) {
             addPreviewItem(codiceArticolo, previewBarcode, false, error.message);
@@ -335,7 +339,7 @@ showpage
     return eps;
 }
 
-function addPreviewItem(codiceArticolo, codiceBarcode, success, errorMsg = '') {
+function addPreviewItem(codiceArticolo, codiceBarcode, success, errorMsg = '', barcodeId = '') {
     const item = document.createElement('div');
     item.className = 'preview-item';
     
@@ -344,7 +348,7 @@ function addPreviewItem(codiceArticolo, codiceBarcode, success, errorMsg = '') {
         '<i data-lucide="x-circle" size="20" style="color: #dc2626;"></i>';
     
     const downloadBtn = success ? 
-        `<button class="btn btn-secondary" style="padding: 8px 16px; font-size: 14px;" onclick="downloadSingle('${codiceArticolo}')">
+        `<button class="btn btn-secondary" style="padding: 8px 16px; font-size: 14px;" onclick="downloadSingle('${barcodeId}')">
             <i data-lucide="download" size="16"></i>
             Scarica
         </button>` : '';
@@ -365,8 +369,8 @@ function addPreviewItem(codiceArticolo, codiceBarcode, success, errorMsg = '') {
     lucide.createIcons(); // Re-render icons
 }
 
-window.downloadSingle = function(codiceArticolo) {
-    const barcode = generatedBarcodes.find(b => b.codiceArticolo === codiceArticolo);
+window.downloadSingle = function(barcodeId) {
+    const barcode = generatedBarcodes.find(b => b.id === barcodeId);
     if (barcode) {
         downloadFile(barcode.filename, barcode.content);
     }
