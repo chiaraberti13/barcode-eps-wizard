@@ -131,9 +131,10 @@ Nota avanzamento: introdotto limite hard configurabile lato client (`MAX_PROCESS
 
 ### D. Frontend
 
-[ ] Rifattorizzare UI in sezioni/stati espliciti (idle, file caricato, generazione, completato, errore)  
+[x] Rifattorizzare UI in sezioni/stati espliciti (idle, file caricato, generazione, completato, errore)  
 Descrizione: evitare transizioni implicite e bug di stato.  
 Done quando: macchina a stati documentata e implementata.
+Nota avanzamento: introdotta macchina a stati UI centralizzata in `app.js` (`idle`, `file_ready`, `generating`, `completed`, `error`) con transizioni esplicite per upload, generazione ed error handling; documentato il comportamento in `docs/ui-state-machine.md` e allineata la visibilità dei controlli (progress, preview, download, report errori) in base allo stato.
 
 [ ] Migliorare preview risultati con filtri (tutti/successi/errori)  
 Descrizione: facilitare diagnosi su lotti grandi.  
