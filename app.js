@@ -10,6 +10,9 @@ const REQUIRED_COLUMNS = {
     codiceArticolo: ['codicearticolo'],
     barcode: ['barcode']
 };
+const VALID_FILE_EXTENSIONS = new Set(['xlsx', 'xls', 'csv']);
+const MAX_UPLOAD_FILE_SIZE_BYTES = 5 * 1024 * 1024;
+const MAX_PROCESSABLE_ROWS = 5000;
 const INVALID_FILENAME_CHARS_REGEX = /[<>:"/\\|?*\u0000-\u001f]/g;
 const WINDOWS_RESERVED_NAMES = new Set([
     'CON', 'PRN', 'AUX', 'NUL',
@@ -54,6 +57,16 @@ fileInput.addEventListener('change', (e) => {
 });
 
 function handleFile(file) {
+    try {
+        validateSelectedFile(file);
+    } catch (error) {
+        showAlert('error', error.message);
+        currentData = [];
+        generateBtn.disabled = true;
+        stats.style.display = 'none';
+        return;
+    }
+
     const reader = new FileReader();
     
     reader.onload = (e) => {
@@ -151,6 +164,33 @@ function normalizeColumnName(name) {
         .toLowerCase();
 }
 
+function getFileExtension(filename) {
+    const safeFilename = String(filename || '');
+    const lastDotIndex = safeFilename.lastIndexOf('.');
+
+    if (lastDotIndex === -1 || lastDotIndex === safeFilename.length - 1) {
+        return '';
+    }
+
+    return safeFilename.slice(lastDotIndex + 1).toLowerCase();
+}
+
+function validateSelectedFile(file) {
+    if (!file) {
+        throw new Error('Nessun file selezionato.');
+    }
+
+    const extension = getFileExtension(file.name);
+    if (!VALID_FILE_EXTENSIONS.has(extension)) {
+        throw new Error('Formato file non supportato. Carica solo file .xlsx, .xls o .csv.');
+    }
+
+    if (file.size > MAX_UPLOAD_FILE_SIZE_BYTES) {
+        const maxSizeMb = Math.round(MAX_UPLOAD_FILE_SIZE_BYTES / (1024 * 1024));
+        throw new Error(`File troppo grande. Dimensione massima consentita: ${maxSizeMb}MB.`);
+    }
+}
+
 function resolveRequiredColumns(headers) {
     const normalizedHeaders = new Map();
 
@@ -179,6 +219,10 @@ function resolveRequiredColumns(headers) {
 function prepareDataRows(jsonData) {
     if (!Array.isArray(jsonData) || jsonData.length === 0) {
         throw new Error('Il file non contiene righe dati.');
+    }
+
+    if (jsonData.length > MAX_PROCESSABLE_ROWS) {
+        throw new Error(`Il file contiene ${jsonData.length} righe. Limite massimo supportato: ${MAX_PROCESSABLE_ROWS}.`);
     }
 
     const headers = Object.keys(jsonData[0] || {});

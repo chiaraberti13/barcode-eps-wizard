@@ -117,9 +117,10 @@ Nota avanzamento: aggiunta validazione centralizzata con regex numerica, normali
 Descrizione: permettere correzione batch delle righe fallite.  
 Done quando: report scaricabile con indice riga, motivo, valore originale.
 
-[ ] Definire limite configurabile numero righe processabili  
+[x] Definire limite configurabile numero righe processabili  
 Descrizione: prevenire freeze browser con dataset eccessivi.  
 Done quando: sopra soglia appare warning/blocco con motivazione.
+Nota avanzamento: introdotto limite hard configurabile lato client (`MAX_PROCESSABLE_ROWS = 5000`) con blocco preventivo e messaggio esplicito all’utente quando il dataset supera la soglia.
 
 ### D. Frontend
 
