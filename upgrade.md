@@ -288,9 +288,10 @@ Descrizione: ricerca per chiave non univoca può scaricare file errato.
 Done quando: identificatore univoco interno per ogni riga generata.
 Nota avanzamento: introdotto identificatore interno progressivo (`id`) per ciascun barcode generato e aggiornato il download singolo per usare l'id univoco invece del `Codice articolo`.
 
-[ ] Migliorare robustezza rendering dinamico con `innerHTML`  
+[x] Migliorare robustezza rendering dinamico con `innerHTML`  
 Descrizione: ridurre rischio di injection e bug HTML con contenuti non fidati.  
 Done quando: rendering tramite nodi DOM/escaping centralizzato.
+Nota avanzamento: refactor completo di `addPreviewItem` con creazione nodi DOM sicuri (`textContent`), rimozione di `innerHTML` e di `onclick` inline, introducendo listener espliciti per il download singolo.
 
 ---
 
@@ -315,4 +316,4 @@ Done quando: rendering tramite nodi DOM/escaping centralizzato.
 
 
 ### Bug/failure pre-esistenti rilevati
-- [ ] Possibile injection HTML/JS in preview/download: `codiceArticolo` viene interpolato in `innerHTML` e in `onclick` inline senza escaping (fuori scope del task corrente, da correggere con rendering DOM sicuro e listener non inline).
+- [x] Possibile injection HTML/JS in preview/download: `codiceArticolo` viene interpolato in `innerHTML` e in `onclick` inline senza escaping (corretto con rendering DOM sicuro e listener non inline, senza interpolazione HTML).
