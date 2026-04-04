@@ -256,15 +256,7 @@ function normalizeBarcode(rawBarcode, rowNumber) {
         throw new Error(`Riga ${rowNumber}: barcode mancante.`);
     }
 
-    const rawValue = String(rawBarcode).trim();
-    if (!rawValue) {
-        throw new Error(`Riga ${rowNumber}: barcode vuoto.`);
-    }
-
-    const normalized = rawValue.replace(/\s+/g, '').replace(/\.0+$/, '');
-    if (!/^\d+$/.test(normalized)) {
-        throw new Error(`Riga ${rowNumber}: barcode contiene caratteri non numerici.`);
-    }
+    const normalized = normalizeBarcodeInput(rawBarcode, rowNumber);
 
     if (normalized.length !== 12 && normalized.length !== 13) {
         throw new Error(`Riga ${rowNumber}: barcode deve avere 12 o 13 cifre (trovate ${normalized.length}).`);
@@ -280,6 +272,31 @@ function normalizeBarcode(rawBarcode, rowNumber) {
     }
 
     return `${normalized}${calculateEAN13CheckDigit(normalized)}`;
+}
+
+function normalizeBarcodeInput(rawBarcode, rowNumber) {
+    if (typeof rawBarcode === 'number') {
+        if (!Number.isFinite(rawBarcode) || !Number.isInteger(rawBarcode) || rawBarcode < 0) {
+            throw new Error(`Riga ${rowNumber}: barcode numerico non valido.`);
+        }
+        return String(rawBarcode);
+    }
+
+    const rawValue = String(rawBarcode).trim();
+    if (!rawValue) {
+        throw new Error(`Riga ${rowNumber}: barcode vuoto.`);
+    }
+
+    const compactValue = rawValue.replace(/\s+/g, '');
+    if (/^\d+$/.test(compactValue)) {
+        return compactValue;
+    }
+
+    if (/^\d+\.0+$/.test(compactValue)) {
+        return compactValue.split('.')[0];
+    }
+
+    throw new Error(`Riga ${rowNumber}: barcode contiene caratteri non numerici.`);
 }
 
 function sanitizeEpsFilename(codiceArticolo, rowNumber) {

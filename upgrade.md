@@ -273,9 +273,10 @@ Done quando: ogni azione critica produce feedback immediato e persistente quanto
 Descrizione: attualmente README e repository non risultano perfettamente allineati.  
 Done quando: i nomi indicati in docs corrispondono ai file effettivi presenti.
 
-[ ] Eliminare manipolazione fragile del barcode (`replace('.0', '')`)  
+[x] Eliminare manipolazione fragile del barcode (`replace('.0', '')`)  
 Descrizione: la pulizia corrente può produrre risultati inattesi su input anomali.  
 Done quando: normalizzazione numerica esplicita e testata.
+Nota avanzamento: sostituita la normalizzazione fragile basata su replace con una coercizione esplicita per tipi numerici/stringa, supporto controllato dei valori Excel in formato `123...0` e rifiuto deterministico di input non numerici.
 
 [x] Gestire assenza colonne obbligatorie prima della generazione  
 Descrizione: oggi la logica dipende da chiavi esatte in runtime.  
