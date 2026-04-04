@@ -262,7 +262,7 @@ Done quando: ogni azione critica produce feedback immediato e persistente quanto
 
 ## 7) Errori da correggere
 
-[ ] Correggere incoerenza naming file in documentazione (`barcode_generator.html` vs file reale)  
+[x] Correggere incoerenza naming file in documentazione (`barcode_generator.html` vs file reale)  
 Descrizione: attualmente README e repository non risultano perfettamente allineati.  
 Done quando: i nomi indicati in docs corrispondono ai file effettivi presenti.
 

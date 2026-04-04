@@ -9,8 +9,8 @@ Standalone web app to generate EAN-13 barcodes in EPS format from Excel. No inst
 ## 🎯 COMPLETE PACKAGE
 
 This package contains:
-- **`barcode_generator.html`** - The complete web application
-- **`barcode.xlsx`** - Sample Excel file with correct structure
+- **`barcode-eps-wizard.html`** - The complete web application
+- **`example.xlsx`** - Sample Excel file with correct structure
 - **`LICENSE`** - MIT License
 - **`README.md`** - This documentation (English + Italian)
 
@@ -30,14 +30,14 @@ This is a **completely standalone** web app. You don't need to install:
 ## 🚀 HOW TO USE IN 3 STEPS
 
 ### Step 1: Open the application
-1. **Double-click** on `barcode_generator.html`
+1. **Double-click** on `barcode-eps-wizard.html`
 2. It will automatically open in your default browser
 3. Works with: Chrome, Firefox, Safari, Edge
 
 💡 **Note:** Internet connection required only for first load (to download icons). After first launch, the app can work offline.
 
 ### Step 2: Prepare your Excel file
-Use `barcode.xlsx` as an example. The structure must be:
+Use `example.xlsx` as an example. The structure must be:
 
 ```
 | Codice articolo | Barcode        |
@@ -133,7 +133,7 @@ The generated ZIP file contains all compressed barcodes. Approximate size:
 
 ### HTML file doesn't open in browser
 **Solution:**
-1. Right-click on `barcode_generator.html`
+1. Right-click on `barcode-eps-wizard.html`
 2. Select "Open with"
 3. Choose your browser (Chrome recommended)
 
@@ -224,7 +224,7 @@ The application processes files entirely in the local browser. No information is
 You can share the entire folder with colleagues:
 1. Copy all files to a USB drive
 2. Or share via email/WeTransfer/Google Drive
-3. Recipients just need to open `barcode_generator.html`
+3. Recipients just need to open `barcode-eps-wizard.html`
 
 **No installation required for recipients!**
 
@@ -281,8 +281,8 @@ Applicazione web standalone per generare barcode EAN-13 in formato EPS da Excel.
 ## 🎯 PACCHETTO COMPLETO
 
 Questo pacchetto contiene:
-- **`barcode_generator.html`** - L'applicazione web completa
-- **`barcode.xlsx`** - File Excel di esempio con la struttura corretta
+- **`barcode-eps-wizard.html`** - L'applicazione web completa
+- **`example.xlsx`** - File Excel di esempio con la struttura corretta
 - **`LICENSE`** - Licenza MIT
 - **`README.md`** - Questa documentazione (Inglese + Italiano)
 
@@ -302,14 +302,14 @@ Questa è una web app **completamente standalone**. Non devi installare:
 ## 🚀 COME USARE IN 3 PASSI
 
 ### Passo 1: Aprire l'applicazione
-1. Fai **doppio click** sul file `barcode_generator.html`
+1. Fai **doppio click** sul file `barcode-eps-wizard.html`
 2. Si aprirà automaticamente nel tuo browser predefinito
 3. Funziona con: Chrome, Firefox, Safari, Edge
 
 💡 **Nota:** Serve connessione internet solo per il primo caricamento (per scaricare le icone). Dopo il primo avvio, l'app può funzionare offline.
 
 ### Passo 2: Preparare il file Excel
-Usa il file `barcode.xlsx` come esempio. La struttura deve essere:
+Usa il file `example.xlsx` come esempio. La struttura deve essere:
 
 ```
 | Codice articolo | Barcode        |
@@ -405,7 +405,7 @@ Il file ZIP generato contiene tutti i barcode compressi. Dimensione approssimati
 
 ### Il file HTML non si apre nel browser
 **Soluzione:**
-1. Click destro su `barcode_generator.html`
+1. Click destro su `barcode-eps-wizard.html`
 2. Seleziona "Apri con"
 3. Scegli il tuo browser (Chrome consigliato)
 
@@ -496,7 +496,7 @@ L'applicazione elabora i file completamente nel browser locale. Nessuna informaz
 Puoi condividere l'intera cartella con colleghi:
 1. Copia tutti i file su una chiavetta USB
 2. Oppure condividi via email/WeTransfer/Google Drive
-3. Chi riceve deve solo aprire `barcode_generator.html`
+3. Chi riceve deve solo aprire `barcode-eps-wizard.html`
 
 **Nessuna installazione richiesta per chi riceve i file!**
 
