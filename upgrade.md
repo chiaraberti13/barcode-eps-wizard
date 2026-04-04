@@ -97,9 +97,10 @@ Descrizione: definire precondizioni (cifre ammesse, lunghezza, caratteri) e outp
 Done quando: documentazione tecnica e test su casi validi/non validi.
 Nota avanzamento: introdotta validazione/normalizzazione esplicita EAN-13 nel core (`normalizeEAN13Input`), verifica check digit anche su input a 13 cifre, aggiornati i test unitari per casi validi/non validi e aggiunta documentazione tecnica del contratto I/O in `docs/ean13-contract.md`.
 
-[ ] Gestire in modo deterministico i casi duplicati `Codice articolo`  
+[x] Gestire in modo deterministico i casi duplicati `Codice articolo`  
 Descrizione: decidere policy (sovrascrivi/blocca/suffisso progressivo) e applicarla.  
 Done quando: comportamento univoco e verificabile con test.
+Nota avanzamento: applicata policy con suffisso progressivo deterministico sui filename EPS duplicati (`_2`, `_3`, ...), mantenendo il primo nome invariato; aggiunti test unitari dedicati per garantire comportamento stabile.
 
 [x] Sanificare nomi file EPS generati  
 Descrizione: rimuovere o normalizzare caratteri non compatibili con filesystem.  
@@ -324,3 +325,5 @@ Nota avanzamento: refactor completo di `addPreviewItem` con creazione nodi DOM s
 
 ### Bug/failure pre-esistenti rilevati
 - [x] Possibile injection HTML/JS in preview/download: `codiceArticolo` viene interpolato in `innerHTML` e in `onclick` inline senza escaping (corretto con rendering DOM sicuro e listener non inline, senza interpolazione HTML).
+
+- [x] Errore runtime pre-esistente: funzioni `normalizeBarcode`/`sanitizeEpsFilename` richiamate ma non definite in `app.js` (risolto con estrazione utilità condivise in `core/row-utils.mjs` e import espliciti nella UI).
