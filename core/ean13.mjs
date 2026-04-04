@@ -1,5 +1,6 @@
 const EAN_12_REGEX = /^\d{12}$/;
 const EAN_13_REGEX = /^\d{13}$/;
+const POST_SCRIPT_CONTROL_CHARS_REGEX = /[\u0000-\u001f\u007f]+/g;
 
 export function normalizeEAN13Input(code) {
   const normalizedCode = String(code ?? '').trim();
@@ -91,9 +92,30 @@ export function encodeEAN13(code) {
   return bars;
 }
 
-export function generateEPS(codiceBarcode, _codiceArticolo = '') {
+function sanitizeEpsCommentValue(value) {
+  return String(value ?? '')
+    .replace(/\r?\n+/g, ' ')
+    .replace(POST_SCRIPT_CONTROL_CHARS_REGEX, ' ')
+    .replace(/%+/g, '')
+    .trim();
+}
+
+function escapePostScriptStringLiteral(value) {
+  return String(value ?? '')
+    .replace(/\\/g, '\\\\')
+    .replace(/\(/g, '\\(')
+    .replace(/\)/g, '\\)')
+    .replace(POST_SCRIPT_CONTROL_CHARS_REGEX, '');
+}
+
+export function generateEPS(codiceBarcode, codiceArticolo = '') {
   const normalizedCode = normalizeEAN13Input(codiceBarcode);
   const bars = encodeEAN13(normalizedCode);
+  const safeTitle = sanitizeEpsCommentValue(`EAN13 ${normalizedCode}`);
+  const safeSubject = sanitizeEpsCommentValue(codiceArticolo) || 'N/A';
+  const safeFirstDigit = escapePostScriptStringLiteral(normalizedCode[0]);
+  const safeLeftText = escapePostScriptStringLiteral(normalizedCode.substring(1, 7));
+  const safeRightText = escapePostScriptStringLiteral(normalizedCode.substring(7, 13));
   const barWidth = 1.0;
   const barHeight = 50.0;
   const textHeight = 5.0;
@@ -104,7 +126,8 @@ export function generateEPS(codiceBarcode, _codiceArticolo = '') {
 
   let eps = `%!PS-Adobe-3.0 EPSF-3.0
 %%Creator: Century Italia Barcode Generator
-%%Title: ${normalizedCode}
+%%Title: ${safeTitle}
+%%Subject: ${safeSubject}
 %%Pages: 0
 %%BoundingBox: 0 0 ${Math.round(totalWidth)} ${Math.round(totalHeight)}
 %%EndComments
@@ -160,36 +183,34 @@ matrix currentmatrix
 
   const firstDigitX = quietZone - 6.0;
   eps += ` 0 0 moveto ${firstDigitX.toFixed(2)} 1.50 translate 0.00 rotate 0 0 moveto
- (${normalizedCode[0]}) stringwidth
+ (${safeFirstDigit}) stringwidth
 pop
 -2 div 0 rmoveto
- (${normalizedCode[0]}) show
+ (${safeFirstDigit}) show
 setmatrix
 `;
 
-  const leftText = normalizedCode.substring(1, 7);
   const leftTextX = quietZone + (bars.length / 4 * barWidth);
   eps += `matrix currentmatrix
 /Helvetica findfont
 11.00 scalefont setfont
  0 0 moveto ${leftTextX.toFixed(2)} 1.50 translate 0.00 rotate 0 0 moveto
- (${leftText}) stringwidth
+ (${safeLeftText}) stringwidth
 pop
 -2 div 0 rmoveto
- (${leftText}) show
+ (${safeLeftText}) show
 setmatrix
 `;
 
-  const rightText = normalizedCode.substring(7, 13);
   const rightTextX = quietZone + (3 * bars.length / 4 * barWidth);
   eps += `matrix currentmatrix
 /Helvetica findfont
 11.00 scalefont setfont
  0 0 moveto ${rightTextX.toFixed(2)} 1.50 translate 0.00 rotate 0 0 moveto
- (${rightText}) stringwidth
+ (${safeRightText}) stringwidth
 pop
 -2 div 0 rmoveto
- (${rightText}) show
+ (${safeRightText}) show
 setmatrix
 
 showpage

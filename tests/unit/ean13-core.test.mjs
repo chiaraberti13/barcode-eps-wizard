@@ -27,6 +27,16 @@ test('generateEPS produce output PostScript con header e bounding box', () => {
   assert.match(eps, /showpage/);
 });
 
+
+test('generateEPS sanitizza metadati DSC contro payload con newline e percentuali', () => {
+  const eps = generateEPS('5901234123457', `Articolo
+%%BoundingBox: 1 1 1 1
+100%`);
+
+  assert.match(eps, /%%Subject: Articolo BoundingBox: 1 1 1 1 100/);
+  assert.doesNotMatch(eps, /%%Subject:.*%%BoundingBox: 1 1 1 1/m);
+});
+
 test('encodeEAN13 rifiuta input di lunghezza non valida', () => {
   assert.throws(() => encodeEAN13('12345'), /Codice EAN-13 non valido/);
 });

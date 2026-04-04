@@ -224,9 +224,10 @@ Done quando: pipeline automatica attiva e documentata.
 Descrizione: whitelist su estensioni file, colonne, barcode, nomi articolo.  
 Done quando: input non conforme viene bloccato con errore esplicito.
 
-[ ] Prevenire injection in output EPS (testo barcode/articolo)  
+[x] Prevenire injection in output EPS (testo barcode/articolo)  
 Descrizione: escaping/sanitizzazione dei caratteri prima della serializzazione PostScript.  
 Done quando: payload malevoli non alterano la sintassi EPS.
+Nota avanzamento: introdotta sanitizzazione dei metadati DSC (`%%Title`/`%%Subject`) e escaping dei literal PostScript nel core EPS; aggiunti test unitari con payload malevolo (newline/percentuali) per garantire che non sia possibile iniettare direttive EPS.
 
 [x] Limitare dimensione file e numero record processabili  
 Descrizione: mitigare DoS client-side e consumo memoria eccessivo.  
