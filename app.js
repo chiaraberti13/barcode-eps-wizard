@@ -11,6 +11,13 @@ let currentData = [];
 let generatedBarcodes = [];
 let generationErrors = [];
 let barcodeSequence = 0;
+const APP_STATES = Object.freeze({
+    IDLE: 'idle',
+    FILE_READY: 'file_ready',
+    GENERATING: 'generating',
+    COMPLETED: 'completed',
+    ERROR: 'error'
+});
 const REQUIRED_COLUMNS = {
     codiceArticolo: ['codicearticolo'],
     barcode: ['barcode']
@@ -44,6 +51,66 @@ const preview = document.getElementById('preview');
 const successAlert = document.getElementById('successAlert');
 const warningAlert = document.getElementById('warningAlert');
 const errorAlert = document.getElementById('errorAlert');
+
+function toggleElementDisplay(element, shouldShow, displayMode = 'block') {
+    element.style.display = shouldShow ? displayMode : 'none';
+}
+
+function setUiState(nextState) {
+    const hasRows = currentData.length > 0;
+    const hasGeneratedItems = generatedBarcodes.length > 0;
+    const hasErrors = generationErrors.length > 0;
+
+    switch (nextState) {
+    case APP_STATES.IDLE:
+        toggleElementDisplay(stats, false);
+        toggleElementDisplay(progressContainer, false);
+        toggleElementDisplay(preview, false);
+        toggleElementDisplay(downloadAllBtn, false);
+        toggleElementDisplay(downloadErrorsCsvBtn, false);
+        toggleElementDisplay(downloadErrorsJsonBtn, false);
+        generateBtn.disabled = true;
+        break;
+    case APP_STATES.FILE_READY:
+        toggleElementDisplay(stats, true, 'block');
+        toggleElementDisplay(progressContainer, false);
+        toggleElementDisplay(preview, false);
+        toggleElementDisplay(downloadAllBtn, false);
+        toggleElementDisplay(downloadErrorsCsvBtn, false);
+        toggleElementDisplay(downloadErrorsJsonBtn, false);
+        generateBtn.disabled = !hasRows;
+        break;
+    case APP_STATES.GENERATING:
+        toggleElementDisplay(stats, true, 'block');
+        toggleElementDisplay(progressContainer, true, 'block');
+        toggleElementDisplay(preview, true, 'block');
+        toggleElementDisplay(downloadAllBtn, false);
+        toggleElementDisplay(downloadErrorsCsvBtn, false);
+        toggleElementDisplay(downloadErrorsJsonBtn, false);
+        generateBtn.disabled = true;
+        break;
+    case APP_STATES.COMPLETED:
+        toggleElementDisplay(stats, true, 'block');
+        toggleElementDisplay(progressContainer, true, 'block');
+        toggleElementDisplay(preview, true, 'block');
+        toggleElementDisplay(downloadAllBtn, hasGeneratedItems, 'inline-flex');
+        toggleElementDisplay(downloadErrorsCsvBtn, hasErrors, 'inline-flex');
+        toggleElementDisplay(downloadErrorsJsonBtn, hasErrors, 'inline-flex');
+        generateBtn.disabled = !hasRows;
+        break;
+    case APP_STATES.ERROR:
+        toggleElementDisplay(progressContainer, false);
+        toggleElementDisplay(downloadAllBtn, false);
+        toggleElementDisplay(downloadErrorsCsvBtn, false);
+        toggleElementDisplay(downloadErrorsJsonBtn, false);
+        toggleElementDisplay(preview, hasGeneratedItems || hasErrors, 'block');
+        toggleElementDisplay(stats, hasRows, 'block');
+        generateBtn.disabled = !hasRows;
+        break;
+    default:
+        throw new Error(`Stato UI non supportato: ${nextState}`);
+    }
+}
 
 // Upload area events
 uploadArea.addEventListener('click', () => fileInput.click());
@@ -79,8 +146,7 @@ function handleFile(file) {
             fallbackMessage: 'Il file selezionato non è valido. Controlla formato e dimensione e riprova.'
         });
         currentData = [];
-        generateBtn.disabled = true;
-        stats.style.display = 'none';
+        setUiState(APP_STATES.ERROR);
         return;
     }
 
@@ -98,8 +164,12 @@ function handleFile(file) {
 
             currentData = preparedData;
             document.getElementById('totalCount').textContent = preparedData.length;
-            generateBtn.disabled = false;
-            stats.style.display = 'block';
+            document.getElementById('successCount').textContent = 0;
+            document.getElementById('errorCount').textContent = 0;
+            preview.innerHTML = '';
+            progressFill.style.width = '0%';
+            progressText.textContent = `0 / ${preparedData.length}`;
+            setUiState(APP_STATES.FILE_READY);
 
             showAlert('success', `File caricato con successo! ${preparedData.length} righe trovate.`);
             if (datasetWarnings.length > 0) {
@@ -112,8 +182,7 @@ function handleFile(file) {
                 fallbackMessage: 'Impossibile leggere il file. Verifica che contenga un foglio valido con le colonne richieste.'
             });
             currentData = [];
-            generateBtn.disabled = true;
-            stats.style.display = 'none';
+            setUiState(APP_STATES.ERROR);
         }
     };
 
@@ -147,13 +216,10 @@ async function generateBarcodes() {
     generatedBarcodes = [];
     generationErrors = [];
     barcodeSequence = 0;
-    progressContainer.style.display = 'block';
-    preview.style.display = 'block';
     preview.innerHTML = '';
-    generateBtn.disabled = true;
-    downloadAllBtn.style.display = 'none';
-    downloadErrorsCsvBtn.style.display = 'none';
-    downloadErrorsJsonBtn.style.display = 'none';
+    progressFill.style.width = '0%';
+    progressText.textContent = `0 / ${currentData.length}`;
+    setUiState(APP_STATES.GENERATING);
 
     let successCount = 0;
     let errorCount = 0;
@@ -206,12 +272,7 @@ async function generateBarcodes() {
         }
     }
 
-    generateBtn.disabled = false;
-    downloadAllBtn.style.display = 'inline-flex';
-    if (generationErrors.length > 0) {
-        downloadErrorsCsvBtn.style.display = 'inline-flex';
-        downloadErrorsJsonBtn.style.display = 'inline-flex';
-    }
+    setUiState(APP_STATES.COMPLETED);
     showAlert('success', `Generazione completata! ${successCount} barcode generati con successo.`);
 }
 
@@ -474,5 +535,8 @@ function getUserSafeErrorMessage(error, fallbackMessage) {
 
 function handleError({ context, error, fallbackMessage }) {
     console.error(`[${context}]`, error);
+    setUiState(APP_STATES.ERROR);
     showAlert('error', getUserSafeErrorMessage(error, fallbackMessage));
 }
+
+setUiState(APP_STATES.IDLE);
