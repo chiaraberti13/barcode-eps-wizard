@@ -35,6 +35,7 @@ Web app **standalone in singolo file HTML** per generare barcode EAN-13 in forma
 - Coerenza documentale da verificare (README menziona nomi file diversi dal repo reale).
 - Qualità EPS da validare con test comparativi su casi edge.
 - **Rilevazione pre-esistente:** sezione Testing non completamente allineata allo stato reale (alcuni test EAN-13 risultano già presenti ma task ancora non marcati).
+- **Rilevazione pre-esistente:** durante i comandi npm compare il warning `Unknown env config "http-proxy"` (configurazione ambiente/tooling da ripulire per evitare rumore nei quality gate).
 
 ### ❌ Mancante
 - Test automatici (unit/integration/e2e).
@@ -136,9 +137,10 @@ Descrizione: evitare transizioni implicite e bug di stato.
 Done quando: macchina a stati documentata e implementata.
 Nota avanzamento: introdotta macchina a stati UI centralizzata in `app.js` (`idle`, `file_ready`, `generating`, `completed`, `error`) con transizioni esplicite per upload, generazione ed error handling; documentato il comportamento in `docs/ui-state-machine.md` e allineata la visibilità dei controlli (progress, preview, download, report errori) in base allo stato.
 
-[ ] Migliorare preview risultati con filtri (tutti/successi/errori)  
+[x] Migliorare preview risultati con filtri (tutti/successi/errori)  
 Descrizione: facilitare diagnosi su lotti grandi.  
 Done quando: filtro attivo e conteggi coerenti.
+Nota avanzamento: aggiunta toolbar filtri preview (Tutti/Successi/Errori) con conteggi in tempo reale, stato attivo accessibile (`aria-pressed`), rendering coerente durante la generazione e test automatici dedicati su logica filtri e presenza UI.
 
 [ ] Aggiungere azioni batch (download solo validi, reset sessione)  
 Descrizione: rendere il flusso più rapido e meno ambiguo.  
