@@ -28,6 +28,22 @@ This is a **completely standalone** web app. You don't need to install:
 
 ---
 
+## 🧭 DEVELOPMENT CONVENTIONS
+
+This repository includes an `.editorconfig` file to keep formatting consistent across editors and operating systems.
+
+**Active standards:**
+- UTF-8 encoding
+- LF line endings
+- Final newline required
+- 2-space indentation for HTML/CSS/JS/JSON/YAML
+- No trailing whitespace (except Markdown, where trailing spaces may be intentional)
+
+**Naming conventions:**
+- JavaScript: `camelCase` for variables/functions, `UPPER_SNAKE_CASE` for constants
+- CSS classes: `kebab-case`
+- Files: `kebab-case` (except established filenames such as `README.md`)
+
 ## 🚀 HOW TO USE IN 3 STEPS
 
 ### Step 1: Open the application
