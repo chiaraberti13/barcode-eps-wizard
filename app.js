@@ -84,7 +84,7 @@ function handleFile(file) {
     }
 
     const reader = new FileReader();
-    
+
     reader.onload = (e) => {
         try {
             const data = new Uint8Array(e.target.result);
@@ -115,7 +115,7 @@ function handleFile(file) {
             stats.style.display = 'none';
         }
     };
-    
+
     reader.readAsArrayBuffer(file);
 }
 
@@ -142,7 +142,7 @@ generateBtn.addEventListener('click', generateBarcodes);
 
 async function generateBarcodes() {
     if (currentData.length === 0) return;
-    
+
     generatedBarcodes = [];
     barcodeSequence = 0;
     progressContainer.style.display = 'block';
@@ -150,17 +150,17 @@ async function generateBarcodes() {
     preview.innerHTML = '';
     generateBtn.disabled = true;
     downloadAllBtn.style.display = 'none';
-    
+
     let successCount = 0;
     let errorCount = 0;
-    
+
     for (let i = 0; i < currentData.length; i++) {
         const item = currentData[i];
         const rowNumber = i + 2;
         const codiceArticolo = String(item.codiceArticolo || '').trim();
         const rawBarcode = item.barcode;
         const previewBarcode = rawBarcode === undefined || rawBarcode === null ? '' : String(rawBarcode).trim();
-        
+
         try {
             const normalizedBarcode = normalizeBarcode(rawBarcode, rowNumber);
             const epsContent = generateEPS(normalizedBarcode, codiceArticolo);
@@ -173,27 +173,27 @@ async function generateBarcodes() {
                 codiceArticolo,
                 codiceBarcode: normalizedBarcode
             });
-            
+
             addPreviewItem(codiceArticolo, normalizedBarcode, true, '', barcodeId);
             successCount++;
         } catch (error) {
             addPreviewItem(codiceArticolo, previewBarcode, false, error.message);
             errorCount++;
         }
-        
+
         const progress = ((i + 1) / currentData.length) * 100;
         progressFill.style.width = progress + '%';
         progressText.textContent = `${i + 1} / ${currentData.length}`;
-        
+
         document.getElementById('successCount').textContent = successCount;
         document.getElementById('errorCount').textContent = errorCount;
-        
+
         // Piccola pausa per non bloccare l'UI
         if (i % 10 === 0) {
             await new Promise(resolve => setTimeout(resolve, 10));
         }
     }
-    
+
     generateBtn.disabled = false;
     downloadAllBtn.style.display = 'inline-flex';
     showAlert('success', `Generazione completata! ${successCount} barcode generati con successo.`);
@@ -280,7 +280,7 @@ function prepareDataRows(jsonData) {
 function calculateEAN13CheckDigit(code12) {
     let sumOdd = 0;
     let sumEven = 0;
-    
+
     for (let i = 0; i < 12; i++) {
         if (i % 2 === 0) {
             sumOdd += parseInt(code12[i], 10);
@@ -288,7 +288,7 @@ function calculateEAN13CheckDigit(code12) {
             sumEven += parseInt(code12[i], 10);
         }
     }
-    
+
     const total = sumOdd + (sumEven * 3);
     const remainder = total % 10;
     return remainder === 0 ? 0 : 10 - remainder;
@@ -377,49 +377,49 @@ function encodeEAN13(code) {
         '4': '0100011', '5': '0110001', '6': '0101111', '7': '0111011',
         '8': '0110111', '9': '0001011'
     };
-    
+
     const G_codes = {
         '0': '0100111', '1': '0110011', '2': '0011011', '3': '0100001',
         '4': '0011101', '5': '0111001', '6': '0000101', '7': '0010001',
         '8': '0001001', '9': '0010111'
     };
-    
+
     const R_codes = {
         '0': '1110010', '1': '1100110', '2': '1101100', '3': '1000010',
         '4': '1011100', '5': '1001110', '6': '1010000', '7': '1000100',
         '8': '1001000', '9': '1110100'
     };
-    
+
     const firstDigitPatterns = [
         'LLLLLL', 'LLGLGG', 'LLGGLG', 'LLGGGL', 'LGLLGG',
         'LGGLLG', 'LGGGLL', 'LGLGLG', 'LGLGGL', 'LGGLGL'
     ];
-    
+
     if (code.length === 12) {
         code = code + calculateEAN13CheckDigit(code);
     } else if (code.length !== 13) {
         throw new Error(`Codice deve avere 12 o 13 cifre, ha ${code.length}`);
     }
-    
+
     const firstDigit = code[0];
     const pattern = firstDigitPatterns[parseInt(firstDigit)];
-    
+
     let bars = '101'; // Start
-    
+
     for (let i = 0; i < 6; i++) {
         const digit = code[i + 1];
         bars += pattern[i] === 'L' ? L_codes[digit] : G_codes[digit];
     }
-    
+
     bars += '01010'; // Center
-    
+
     for (let i = 0; i < 6; i++) {
         const digit = code[i + 7];
         bars += R_codes[digit];
     }
-    
+
     bars += '101'; // End
-    
+
     return bars;
 }
 
@@ -429,10 +429,10 @@ function generateEPS(codiceBarcode, codiceArticolo) {
     const barHeight = 50.0;
     const textHeight = 5.0;
     const quietZone = 10.0;
-    
+
     const totalWidth = bars.length * barWidth + (2 * quietZone);
     const totalHeight = barHeight + textHeight + 6.0;
-    
+
     let eps = `%!PS-Adobe-3.0 EPSF-3.0
 %%Creator: Century Italia Barcode Generator
 %%Title: ${codiceBarcode}
@@ -452,11 +452,11 @@ ${totalHeight.toFixed(2)} 0.00 TB 0.00 ${totalWidth.toFixed(2)} TR
 TE
 0.00 0.00 0.00 setrgbcolor
 `;
-    
+
     // Disegna le barre
     let xPos = quietZone;
     eps += `${barHeight.toFixed(2)} ${(textHeight + 5.0).toFixed(2)} TB `;
-    
+
     for (let i = 0; i < bars.length; i++) {
         if (bars[i] === '1') {
             eps += `${xPos.toFixed(2)} ${barWidth.toFixed(2)} TR\n`;
@@ -466,32 +466,32 @@ TE
         }
         xPos += barWidth;
     }
-    
+
     eps += 'TE\n';
-    
+
     // Guard bars (più lunghe)
     eps += `0.00 0.00 0.00 setrgbcolor\n`;
     eps += `${textHeight.toFixed(2)} ${textHeight.toFixed(2)} TB `;
-    
+
     eps += `${quietZone.toFixed(2)} ${barWidth.toFixed(2)} TR\n`;
     eps += `TB ${(quietZone + barWidth * 2).toFixed(2)} ${barWidth.toFixed(2)} TR\n`;
-    
+
     const centerX = quietZone + (bars.length / 2 * barWidth) - barWidth;
     eps += `TB ${centerX.toFixed(2)} ${barWidth.toFixed(2)} TR\n`;
     eps += `TB ${(centerX + barWidth * 2).toFixed(2)} ${barWidth.toFixed(2)} TR\n`;
-    
+
     const endX = quietZone + (bars.length - 3) * barWidth;
     eps += `TB ${endX.toFixed(2)} ${barWidth.toFixed(2)} TR\n`;
     eps += `TB ${(endX + barWidth * 2).toFixed(2)} ${barWidth.toFixed(2)} TR\n`;
     eps += 'TE\n';
-    
+
     // Testo
     eps += `0.00 0.00 0.00 setrgbcolor
 matrix currentmatrix
 /Helvetica findfont
 11.00 scalefont setfont
 `;
-    
+
     // Prima cifra
     const firstDigitX = quietZone - 6.0;
     eps += ` 0 0 moveto ${firstDigitX.toFixed(2)} 1.50 translate 0.00 rotate 0 0 moveto
@@ -501,7 +501,7 @@ pop
  (${codiceBarcode[0]}) show
 setmatrix
 `;
-    
+
     // Prime 6 cifre
     const leftText = codiceBarcode.substring(1, 7);
     const leftTextX = quietZone + (bars.length / 4 * barWidth);
@@ -515,7 +515,7 @@ pop
  (${leftText}) show
 setmatrix
 `;
-    
+
     // Ultime 6 cifre
     const rightText = codiceBarcode.substring(7, 13);
     const rightTextX = quietZone + (3 * bars.length / 4 * barWidth);
@@ -531,7 +531,7 @@ setmatrix
 
 showpage
 `;
-    
+
     return eps;
 }
 
@@ -619,23 +619,23 @@ function downloadFile(filename, content) {
 
 downloadAllBtn.addEventListener('click', async () => {
     showAlert('success', 'Creazione file ZIP in corso...');
-    
+
     try {
         // Crea un nuovo file ZIP
         const zip = new JSZip();
-        
+
         // Aggiungi tutti i barcode allo ZIP
         for (const barcode of generatedBarcodes) {
             zip.file(barcode.filename, barcode.content);
         }
-        
+
         // Genera il file ZIP
-        const zipBlob = await zip.generateAsync({ 
+        const zipBlob = await zip.generateAsync({
             type: 'blob',
             compression: 'DEFLATE',
             compressionOptions: { level: 9 }
         });
-        
+
         // Scarica il file ZIP
         const url = URL.createObjectURL(zipBlob);
         const a = document.createElement('a');
@@ -645,7 +645,7 @@ downloadAllBtn.addEventListener('click', async () => {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        
+
         showAlert('success', `File ZIP creato con successo! ${generatedBarcodes.length} barcode inclusi.`);
     } catch (error) {
         handleError({
@@ -672,10 +672,10 @@ function showAlert(type, message, durationMs = 5000) {
     const { alert, textElement } = selectedConfig;
     textElement.textContent = message;
     alert.style.display = 'flex';
-    
+
     // Re-render icons
     lucide.createIcons();
-    
+
     setTimeout(() => {
         alert.style.display = 'none';
     }, durationMs);

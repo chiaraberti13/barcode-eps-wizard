@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Century Italia - Generatore Barcode EPS</title>
-    
+
     <!-- SheetJS per leggere Excel -->
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
-    
+
     <!-- JSZip per creare file ZIP -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    
+
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
@@ -25,7 +25,7 @@
             </h1>
             <p class="subtitle">Carica il file Excel o CSV con i codici articolo e barcode</p>
         </div>
-        
+
         <div class="content">
             <div class="upload-area" id="uploadArea">
                 <div class="upload-icon">
@@ -35,7 +35,7 @@
                 <div class="upload-hint">Supporta file Excel (.xlsx, .xls) e CSV</div>
                 <input type="file" id="fileInput" accept=".xlsx,.xls,.csv">
             </div>
-            
+
             <div class="stats" id="stats">
                 <div class="stats-grid">
                     <div class="stat-item">
@@ -52,7 +52,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="actions">
                 <button class="btn" id="generateBtn" disabled>
                     <i data-lucide="play" size="18"></i>
@@ -63,14 +63,14 @@
                     Scarica tutti
                 </button>
             </div>
-            
+
             <div class="progress-container" id="progressContainer">
                 <div class="progress-bar">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
                 <div class="progress-text" id="progressText">0 / 0</div>
             </div>
-            
+
             <div class="alert alert-success" id="successAlert">
                 <i data-lucide="check-circle" size="20"></i>
                 <span id="successText"></span>
@@ -83,10 +83,10 @@
                 <i data-lucide="alert-circle" size="20"></i>
                 <span id="errorText"></span>
             </div>
-            
+
             <div class="preview" id="preview"></div>
         </div>
-        
+
         <div class="footer">
             <div style="margin-bottom: 8px;"> © 2026 Chiara Berti 13 </div>
             <div style="color: #d4d4d4;">File generati in formato PostScript compatibili con Adobe Illustrator</div>

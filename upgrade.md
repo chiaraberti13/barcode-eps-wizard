@@ -74,9 +74,10 @@ Descrizione: aggiungere toolchain minima per qualità continua.
 Done quando: i comandi sono documentati ed eseguibili localmente.
 Nota avanzamento: aggiunto `package.json` con script standardizzati (`lint`, `test`, `test:e2e`, `build-check`), introdotti controlli automatici minimi in `scripts/` e `tests/`, documentati i comandi nel README e validati in locale.
 
-[ ] Configurare linting/formatting (JS, HTML, CSS)  
+[x] Configurare linting/formatting (JS, HTML, CSS)  
 Descrizione: imporre standard codice uniforme e prevenire errori banali.  
 Done quando: lint e format passano senza warning bloccanti.
+Nota avanzamento: estesi gli script quality con `scripts/format-check.mjs` (controlli su LF, newline finale, trailing whitespace, indentazione a 2 spazi su JS/CSS/HTML) e aggiornato `npm run lint` per eseguire lint + format check in un unico gate locale.
 
 [x] Aggiungere `.editorconfig` e convenzioni naming
 Descrizione: allineare indentazione, newline, encoding e naming file/funzioni.  
