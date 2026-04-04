@@ -303,46 +303,46 @@ h1 {
     .header {
         padding: 24px 20px;
     }
-    
+
     .content {
         padding: 20px;
     }
-    
+
     h1 {
         font-size: 20px;
     }
-    
+
     .subtitle {
         font-size: 14px;
     }
-    
+
     .upload-area {
         padding: 32px 16px;
     }
-    
+
     .upload-icon {
         width: 56px;
         height: 56px;
     }
-    
+
     .actions {
         flex-direction: column;
     }
-    
+
     .btn {
         width: 100%;
         justify-content: center;
     }
-    
+
     .stats-grid {
         grid-template-columns: repeat(3, 1fr);
         gap: 16px;
     }
-    
+
     .stat-number {
         font-size: 24px;
     }
-    
+
     .footer {
         padding: 20px;
     }
@@ -365,4 +365,4 @@ h1 {
 .preview::-webkit-scrollbar-thumb:hover {
     background: #a3a3a3;
 }
-    
+

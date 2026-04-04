@@ -52,16 +52,18 @@ If you want repeatable quality checks during development, use Node.js 20+ and np
 ```bash
 npm install
 npm run lint
+npm run format
 npm run test
 npm run test:e2e
 npm run build-check
 ```
 
 **Script meaning:**
-- `npm run lint`: static checks for JavaScript, CSS and HTML
+- `npm run lint`: static checks + formatting gate for JavaScript, CSS and HTML
+- `npm run format`: standalone formatting gate (LF, newline finale, trailing spaces, indentazione)
 - `npm run test`: unit smoke checks for core project assumptions
 - `npm run test:e2e`: end-to-end smoke check on core UI structure
-- `npm run build-check`: aggregate command (`lint` + `test`) for CI/local gate
+- `npm run build-check`: aggregate command (`lint` + `test` + `test:e2e`) for CI/local gate
 
 ## 🚀 HOW TO USE IN 3 STEPS
 

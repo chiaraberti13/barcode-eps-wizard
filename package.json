@@ -4,9 +4,10 @@
   "private": true,
   "description": "Tooling locale per qualità e test del progetto Barcode EPS Wizard",
   "scripts": {
-    "lint": "node scripts/lint.mjs",
+    "lint": "node scripts/lint.mjs && node scripts/format-check.mjs",
     "test": "node --test tests/unit/*.test.mjs",
     "test:e2e": "node tests/e2e/smoke.mjs",
-    "build-check": "npm run lint && npm run test && npm run test:e2e"
+    "build-check": "npm run lint && npm run test && npm run test:e2e",
+    "format": "node scripts/format-check.mjs"
   }
 }
