@@ -1,5 +1,6 @@
 import { generateEPS } from './core/ean13.mjs';
 import { ensureUniqueFilename, normalizeBarcode, sanitizeEpsFilename } from './core/row-utils.mjs';
+import { buildErrorReportCsv, buildErrorReportJson } from './core/error-report.mjs';
 
 // Inizializza le icone Lucide
 document.addEventListener('DOMContentLoaded', () => {
@@ -8,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 let currentData = [];
 let generatedBarcodes = [];
+let generationErrors = [];
 let barcodeSequence = 0;
 const REQUIRED_COLUMNS = {
     codiceArticolo: ['codicearticolo'],
@@ -32,6 +34,8 @@ const uploadArea = document.getElementById('uploadArea');
 const fileInput = document.getElementById('fileInput');
 const generateBtn = document.getElementById('generateBtn');
 const downloadAllBtn = document.getElementById('downloadAllBtn');
+const downloadErrorsCsvBtn = document.getElementById('downloadErrorsCsvBtn');
+const downloadErrorsJsonBtn = document.getElementById('downloadErrorsJsonBtn');
 const progressContainer = document.getElementById('progressContainer');
 const progressFill = document.getElementById('progressFill');
 const progressText = document.getElementById('progressText');
@@ -141,12 +145,15 @@ async function generateBarcodes() {
     if (currentData.length === 0) return;
 
     generatedBarcodes = [];
+    generationErrors = [];
     barcodeSequence = 0;
     progressContainer.style.display = 'block';
     preview.style.display = 'block';
     preview.innerHTML = '';
     generateBtn.disabled = true;
     downloadAllBtn.style.display = 'none';
+    downloadErrorsCsvBtn.style.display = 'none';
+    downloadErrorsJsonBtn.style.display = 'none';
 
     let successCount = 0;
     let errorCount = 0;
@@ -177,6 +184,12 @@ async function generateBarcodes() {
             successCount++;
         } catch (error) {
             addPreviewItem(codiceArticolo, previewBarcode, false, error.message);
+            generationErrors.push({
+                rowIndex: rowNumber,
+                codiceArticolo,
+                barcodeOriginale: previewBarcode,
+                motivo: error.message
+            });
             errorCount++;
         }
 
@@ -195,6 +208,10 @@ async function generateBarcodes() {
 
     generateBtn.disabled = false;
     downloadAllBtn.style.display = 'inline-flex';
+    if (generationErrors.length > 0) {
+        downloadErrorsCsvBtn.style.display = 'inline-flex';
+        downloadErrorsJsonBtn.style.display = 'inline-flex';
+    }
     showAlert('success', `Generazione completata! ${successCount} barcode generati con successo.`);
 }
 
@@ -344,8 +361,8 @@ function downloadSingle(barcodeId) {
     }
 }
 
-function downloadFile(filename, content) {
-    const blob = new Blob([content], { type: 'application/postscript' });
+function downloadFile(filename, content, mimeType = 'application/postscript') {
+    const blob = new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -393,6 +410,26 @@ downloadAllBtn.addEventListener('click', async () => {
             fallbackMessage: 'Errore durante la creazione del file ZIP. Riprova tra qualche secondo.'
         });
     }
+});
+
+downloadErrorsCsvBtn.addEventListener('click', () => {
+    const csvContent = buildErrorReportCsv(generationErrors);
+    downloadFile(
+        `errori_barcode_${new Date().getTime()}.csv`,
+        csvContent,
+        'text/csv;charset=utf-8'
+    );
+    showAlert('success', `Report CSV errori scaricato (${generationErrors.length} righe).`);
+});
+
+downloadErrorsJsonBtn.addEventListener('click', () => {
+    const jsonContent = buildErrorReportJson(generationErrors);
+    downloadFile(
+        `errori_barcode_${new Date().getTime()}.json`,
+        jsonContent,
+        'application/json;charset=utf-8'
+    );
+    showAlert('success', `Report JSON errori scaricato (${generationErrors.length} righe).`);
 });
 
 function showAlert(type, message, durationMs = 5000) {

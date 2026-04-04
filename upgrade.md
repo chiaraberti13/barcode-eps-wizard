@@ -119,9 +119,10 @@ Descrizione: accettare solo 12/13 cifre reali, prevenendo input sporco/ambiguo.
 Done quando: ogni riga invalida produce errore specifico e tracciabile.
 Nota avanzamento: aggiunta validazione centralizzata con regex numerica, normalizzazione sicura (trim/spazi/rimozione suffisso .0), verifica check digit su EAN-13 e messaggi errore per riga in preview.
 
-[ ] Introdurre report finale errori esportabile (CSV/JSON)  
+[x] Introdurre report finale errori esportabile (CSV/JSON)  
 Descrizione: permettere correzione batch delle righe fallite.  
 Done quando: report scaricabile con indice riga, motivo, valore originale.
+Nota avanzamento: aggiunti pulsanti dedicati per il download report errori in CSV e JSON al termine della generazione con failure; il report include indice riga Excel, codice articolo, valore barcode originale e motivo validazione.
 
 [x] Definire limite configurabile numero righe processabili  
 Descrizione: prevenire freeze browser con dataset eccessivi.  
