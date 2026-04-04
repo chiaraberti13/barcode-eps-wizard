@@ -537,22 +537,25 @@
             
             for (let i = 0; i < currentData.length; i++) {
                 const item = currentData[i];
+                const rowNumber = i + 2;
                 const codiceArticolo = String(item['Codice articolo'] || '').trim();
-                const codiceBarcode = String(item['Barcode'] || '').trim().replace('.0', '');
+                const rawBarcode = item['Barcode'];
+                const previewBarcode = rawBarcode === undefined || rawBarcode === null ? '' : String(rawBarcode).trim();
                 
                 try {
-                    const epsContent = generateEPS(codiceBarcode, codiceArticolo);
+                    const normalizedBarcode = normalizeBarcode(rawBarcode, rowNumber);
+                    const epsContent = generateEPS(normalizedBarcode, codiceArticolo);
                     generatedBarcodes.push({
                         filename: `${codiceArticolo}.eps`,
                         content: epsContent,
                         codiceArticolo,
-                        codiceBarcode
+                        codiceBarcode: normalizedBarcode
                     });
                     
-                    addPreviewItem(codiceArticolo, codiceBarcode, true);
+                    addPreviewItem(codiceArticolo, normalizedBarcode, true);
                     successCount++;
                 } catch (error) {
-                    addPreviewItem(codiceArticolo, codiceBarcode, false, error.message);
+                    addPreviewItem(codiceArticolo, previewBarcode, false, error.message);
                     errorCount++;
                 }
                 
@@ -580,15 +583,46 @@
             
             for (let i = 0; i < 12; i++) {
                 if (i % 2 === 0) {
-                    sumOdd += parseInt(code12[i]);
+                    sumOdd += parseInt(code12[i], 10);
                 } else {
-                    sumEven += parseInt(code12[i]);
+                    sumEven += parseInt(code12[i], 10);
                 }
             }
             
             const total = sumOdd + (sumEven * 3);
             const remainder = total % 10;
             return remainder === 0 ? 0 : 10 - remainder;
+        }
+
+        function normalizeBarcode(rawBarcode, rowNumber) {
+            if (rawBarcode === null || rawBarcode === undefined || rawBarcode === '') {
+                throw new Error(`Riga ${rowNumber}: barcode mancante.`);
+            }
+
+            const rawValue = String(rawBarcode).trim();
+            if (!rawValue) {
+                throw new Error(`Riga ${rowNumber}: barcode vuoto.`);
+            }
+
+            const normalized = rawValue.replace(/\s+/g, '').replace(/\.0+$/, '');
+            if (!/^\d+$/.test(normalized)) {
+                throw new Error(`Riga ${rowNumber}: barcode contiene caratteri non numerici.`);
+            }
+
+            if (normalized.length !== 12 && normalized.length !== 13) {
+                throw new Error(`Riga ${rowNumber}: barcode deve avere 12 o 13 cifre (trovate ${normalized.length}).`);
+            }
+
+            if (normalized.length === 13) {
+                const expectedCheckDigit = calculateEAN13CheckDigit(normalized.slice(0, 12));
+                const providedCheckDigit = parseInt(normalized[12], 10);
+                if (expectedCheckDigit !== providedCheckDigit) {
+                    throw new Error(`Riga ${rowNumber}: check digit non valido (atteso ${expectedCheckDigit}).`);
+                }
+                return normalized;
+            }
+
+            return `${normalized}${calculateEAN13CheckDigit(normalized)}`;
         }
         
         function encodeEAN13(code) {
