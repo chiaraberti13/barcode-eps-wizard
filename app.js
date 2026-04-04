@@ -21,6 +21,15 @@ const WINDOWS_RESERVED_NAMES = new Set([
     'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9',
     'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9'
 ]);
+const SAFE_USER_ERROR_PATTERNS = [
+    /^Nessun file selezionato\./,
+    /^Formato file non supportato\./,
+    /^File troppo grande\./,
+    /^Il file non contiene righe dati\./,
+    /^Il file contiene \d+ righe\./,
+    /^Colonna obbligatoria mancante:/,
+    /^Riga \d+:/
+];
 
 const uploadArea = document.getElementById('uploadArea');
 const fileInput = document.getElementById('fileInput');
@@ -63,7 +72,11 @@ function handleFile(file) {
     try {
         validateSelectedFile(file);
     } catch (error) {
-        showAlert('error', error.message);
+        handleError({
+            context: 'FILE_VALIDATION',
+            error,
+            fallbackMessage: 'Il file selezionato non è valido. Controlla formato e dimensione e riprova.'
+        });
         currentData = [];
         generateBtn.disabled = true;
         stats.style.display = 'none';
@@ -92,7 +105,11 @@ function handleFile(file) {
                 showAlert('warning', datasetWarnings.join(' '), 9000);
             }
         } catch (error) {
-            showAlert('error', `Errore nella lettura del file: ${error.message}`);
+            handleError({
+                context: 'FILE_READ',
+                error,
+                fallbackMessage: 'Impossibile leggere il file. Verifica che contenga un foglio valido con le colonne richieste.'
+            });
             currentData = [];
             generateBtn.disabled = true;
             stats.style.display = 'none';
@@ -631,7 +648,11 @@ downloadAllBtn.addEventListener('click', async () => {
         
         showAlert('success', `File ZIP creato con successo! ${generatedBarcodes.length} barcode inclusi.`);
     } catch (error) {
-        showAlert('error', `Errore nella creazione dello ZIP: ${error.message}`);
+        handleError({
+            context: 'ZIP_EXPORT',
+            error,
+            fallbackMessage: 'Errore durante la creazione del file ZIP. Riprova tra qualche secondo.'
+        });
     }
 });
 
@@ -659,4 +680,23 @@ function showAlert(type, message, durationMs = 5000) {
         alert.style.display = 'none';
     }, durationMs);
 }
-    
+
+function isSafeUserErrorMessage(message) {
+    return SAFE_USER_ERROR_PATTERNS.some((pattern) => pattern.test(message));
+}
+
+function getUserSafeErrorMessage(error, fallbackMessage) {
+    if (error instanceof Error && typeof error.message === 'string') {
+        const trimmedMessage = error.message.trim();
+        if (trimmedMessage && isSafeUserErrorMessage(trimmedMessage)) {
+            return trimmedMessage;
+        }
+    }
+
+    return fallbackMessage;
+}
+
+function handleError({ context, error, fallbackMessage }) {
+    console.error(`[${context}]`, error);
+    showAlert('error', getUserSafeErrorMessage(error, fallbackMessage));
+}
