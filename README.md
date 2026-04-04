@@ -10,6 +10,8 @@ Standalone web app to generate EAN-13 barcodes in EPS format from Excel. No inst
 
 This package contains:
 - **`barcode-eps-wizard.html`** - The complete web application
+- **`app.js`** - Main application logic (UI state, parsing flow, generation pipeline)
+- **`styles.css`** - Application styles and responsive layout
 - **`example.xlsx`** - Sample Excel file with correct structure
 - **`upgrade.md`** - Technical upgrade checklist and roadmap
 - **`LICENSE`** - MIT License
@@ -86,7 +88,7 @@ Use `example.xlsx` as an example. The structure must be:
 ```
 
 **Requirements:**
-- Two columns: `Codice articolo` and `Barcode` (exact names, case-sensitive)
+- Two required columns mapped robustly from the header: `Codice articolo` and `Barcode` (spacing and upper/lowercase variants are accepted)
 - Barcodes must be **12-digit** numbers (EAN-13 without check digit) or **13-digit** (complete EAN-13)
 - File format: `.xlsx` or `.xls` or `.csv`
 
@@ -96,7 +98,7 @@ Use `example.xlsx` as an example. The structure must be:
 3. Wait for completion (you'll see the progress bar)
 4. Download files:
    - **Individually**: click "Scarica" (Download) on each barcode in the list
-   - **All at once**: click "Scarica tutti" (Download all) to get a `.zip` file
+   - **Valid rows at once**: click "Scarica validi (ZIP)" to get a `.zip` file containing only valid EPS files
 
 ---
 
@@ -320,6 +322,8 @@ Applicazione web standalone per generare barcode EAN-13 in formato EPS da Excel.
 
 Questo pacchetto contiene:
 - **`barcode-eps-wizard.html`** - L'applicazione web completa
+- **`app.js`** - Logica principale applicativa (stati UI, parsing, pipeline generazione)
+- **`styles.css`** - Stili applicativi e layout responsive
 - **`example.xlsx`** - File Excel di esempio con la struttura corretta
 - **`LICENSE`** - Licenza MIT
 - **`README.md`** - Questa documentazione (Inglese + Italiano)
@@ -344,7 +348,7 @@ Questa è una web app **completamente standalone**. Non devi installare:
 2. Si aprirà automaticamente nel tuo browser predefinito
 3. Funziona con: Chrome, Firefox, Safari, Edge
 
-💡 **Nota:** Serve connessione internet solo per il primo caricamento (per scaricare le icone). Dopo il primo avvio, l'app può funzionare offline.
+💡 **Nota:** Serve connessione internet solo per il primo caricamento (per scaricare librerie CDN: SheetJS, JSZip, Lucide). Dopo il primo avvio, l'uso offline dipende dalla cache del browser.
 
 ### Passo 2: Preparare il file Excel
 Usa il file `example.xlsx` come esempio. La struttura deve essere:
@@ -358,7 +362,7 @@ Usa il file `example.xlsx` come esempio. La struttura deve essere:
 ```
 
 **Requisiti:**
-- Due colonne: `Codice articolo` e `Barcode` (nomi esatti, case-sensitive)
+- Due colonne obbligatorie riconosciute con mapping robusto: `Codice articolo` e `Barcode` (sono accettate varianti comuni di spazi e maiuscole/minuscole)
 - I barcode devono essere numeri di **12 cifre** (EAN-13 senza check digit) o **13 cifre** (EAN-13 completo)
 - Formato file: `.xlsx` o `.xls` o `.csv`
 
@@ -368,7 +372,7 @@ Usa il file `example.xlsx` come esempio. La struttura deve essere:
 3. Attendi il completamento (vedrai la barra di progresso)
 4. Scarica i file:
    - **Singolarmente**: clicca "Scarica" su ogni barcode nella lista
-   - **Tutti insieme**: clicca "Scarica tutti" per ottenere un file `.zip`
+   - **Validi in blocco**: clicca "Scarica validi (ZIP)" per ottenere un file `.zip` contenente solo gli EPS validi
 
 ---
 

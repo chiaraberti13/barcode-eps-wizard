@@ -147,9 +147,10 @@ Descrizione: rendere il flusso più rapido e meno ambiguo.
 Done quando: pulsanti disponibili e comportamento testato.
 Nota avanzamento: rinominata l’azione bulk in UI come download dei soli validi (`Scarica validi (ZIP)`) e introdotto bottone `Reset sessione` con pulizia completa di dati caricati, preview, progress e contatori, riportando la macchina a stati in `idle`; aggiornata la smoke e2e sui nuovi controlli.
 
-[ ] Allineare copy UI e naming file con documentazione  
+[x] Allineare copy UI e naming file con documentazione  
 Descrizione: eliminare mismatch tra README e file reali del repo.  
 Done quando: README e UI non contengono riferimenti incoerenti.
+Nota avanzamento: aggiornato README (EN/IT) per allineare copy con UI corrente (`Scarica validi (ZIP)`), chiarire il mapping robusto delle colonne, dettagliare le librerie CDN effettive e includere i file reali del progetto (`app.js`, `styles.css`) nel contenuto del pacchetto.
 
 ### E. UX / UI
 
