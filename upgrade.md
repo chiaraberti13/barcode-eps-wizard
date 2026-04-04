@@ -154,9 +154,10 @@ Nota avanzamento: aggiornato README (EN/IT) per allineare copy con UI corrente (
 
 ### E. UX / UI
 
-[ ] Definire user journey principali (nuovo utente, utente esperto, caso errore)  
+[x] Definire user journey principali (nuovo utente, utente esperto, caso errore)  
 Descrizione: mappare task reali e punti di frizione.  
 Done quando: flussi documentati con step e decision point.
+Nota avanzamento: aggiunto `docs/user-journeys.md` con i tre percorsi chiave, decision point, frizioni UX e requisiti operativi derivati per guidare i task successivi di microcopy e feedback progressivo.
 
 [ ] Aggiungere feedback progressivo più informativo  
 Descrizione: mostrare tempo stimato, item corrente, stato completo.  
