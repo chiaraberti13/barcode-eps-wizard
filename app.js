@@ -1,6 +1,12 @@
 import { generateEPS } from './core/ean13.mjs';
 import { ensureUniqueFilename, normalizeBarcode, sanitizeEpsFilename } from './core/row-utils.mjs';
 import { buildErrorReportCsv, buildErrorReportJson } from './core/error-report.mjs';
+import {
+    PREVIEW_FILTERS,
+    getFilteredPreviewEntries,
+    getPreviewFilterCounts,
+    normalizePreviewFilter
+} from './core/preview-filter.mjs';
 
 // Inizializza le icone Lucide
 document.addEventListener('DOMContentLoaded', () => {
@@ -10,7 +16,9 @@ document.addEventListener('DOMContentLoaded', () => {
 let currentData = [];
 let generatedBarcodes = [];
 let generationErrors = [];
+let previewEntries = [];
 let barcodeSequence = 0;
+let currentPreviewFilter = PREVIEW_FILTERS.ALL;
 const APP_STATES = Object.freeze({
     IDLE: 'idle',
     FILE_READY: 'file_ready',
@@ -43,6 +51,13 @@ const generateBtn = document.getElementById('generateBtn');
 const downloadAllBtn = document.getElementById('downloadAllBtn');
 const downloadErrorsCsvBtn = document.getElementById('downloadErrorsCsvBtn');
 const downloadErrorsJsonBtn = document.getElementById('downloadErrorsJsonBtn');
+const previewFilters = document.getElementById('previewFilters');
+const previewFilterAllBtn = document.getElementById('previewFilterAllBtn');
+const previewFilterSuccessBtn = document.getElementById('previewFilterSuccessBtn');
+const previewFilterErrorBtn = document.getElementById('previewFilterErrorBtn');
+const previewFilterAllCount = document.getElementById('previewFilterAllCount');
+const previewFilterSuccessCount = document.getElementById('previewFilterSuccessCount');
+const previewFilterErrorCount = document.getElementById('previewFilterErrorCount');
 const progressContainer = document.getElementById('progressContainer');
 const progressFill = document.getElementById('progressFill');
 const progressText = document.getElementById('progressText');
@@ -60,12 +75,14 @@ function setUiState(nextState) {
     const hasRows = currentData.length > 0;
     const hasGeneratedItems = generatedBarcodes.length > 0;
     const hasErrors = generationErrors.length > 0;
+    const hasPreviewEntries = previewEntries.length > 0;
 
     switch (nextState) {
     case APP_STATES.IDLE:
         toggleElementDisplay(stats, false);
         toggleElementDisplay(progressContainer, false);
         toggleElementDisplay(preview, false);
+        toggleElementDisplay(previewFilters, false);
         toggleElementDisplay(downloadAllBtn, false);
         toggleElementDisplay(downloadErrorsCsvBtn, false);
         toggleElementDisplay(downloadErrorsJsonBtn, false);
@@ -75,6 +92,7 @@ function setUiState(nextState) {
         toggleElementDisplay(stats, true, 'block');
         toggleElementDisplay(progressContainer, false);
         toggleElementDisplay(preview, false);
+        toggleElementDisplay(previewFilters, false);
         toggleElementDisplay(downloadAllBtn, false);
         toggleElementDisplay(downloadErrorsCsvBtn, false);
         toggleElementDisplay(downloadErrorsJsonBtn, false);
@@ -84,6 +102,7 @@ function setUiState(nextState) {
         toggleElementDisplay(stats, true, 'block');
         toggleElementDisplay(progressContainer, true, 'block');
         toggleElementDisplay(preview, true, 'block');
+        toggleElementDisplay(previewFilters, hasPreviewEntries, 'flex');
         toggleElementDisplay(downloadAllBtn, false);
         toggleElementDisplay(downloadErrorsCsvBtn, false);
         toggleElementDisplay(downloadErrorsJsonBtn, false);
@@ -93,6 +112,7 @@ function setUiState(nextState) {
         toggleElementDisplay(stats, true, 'block');
         toggleElementDisplay(progressContainer, true, 'block');
         toggleElementDisplay(preview, true, 'block');
+        toggleElementDisplay(previewFilters, hasPreviewEntries, 'flex');
         toggleElementDisplay(downloadAllBtn, hasGeneratedItems, 'inline-flex');
         toggleElementDisplay(downloadErrorsCsvBtn, hasErrors, 'inline-flex');
         toggleElementDisplay(downloadErrorsJsonBtn, hasErrors, 'inline-flex');
@@ -104,6 +124,7 @@ function setUiState(nextState) {
         toggleElementDisplay(downloadErrorsCsvBtn, false);
         toggleElementDisplay(downloadErrorsJsonBtn, false);
         toggleElementDisplay(preview, hasGeneratedItems || hasErrors, 'block');
+        toggleElementDisplay(previewFilters, hasPreviewEntries, 'flex');
         toggleElementDisplay(stats, hasRows, 'block');
         generateBtn.disabled = !hasRows;
         break;
@@ -209,13 +230,24 @@ function getDatasetWarnings(file, rowCount) {
 }
 
 generateBtn.addEventListener('click', generateBarcodes);
+previewFilterAllBtn.addEventListener('click', () => {
+    setPreviewFilter(PREVIEW_FILTERS.ALL);
+});
+previewFilterSuccessBtn.addEventListener('click', () => {
+    setPreviewFilter(PREVIEW_FILTERS.SUCCESS);
+});
+previewFilterErrorBtn.addEventListener('click', () => {
+    setPreviewFilter(PREVIEW_FILTERS.ERROR);
+});
 
 async function generateBarcodes() {
     if (currentData.length === 0) return;
 
     generatedBarcodes = [];
     generationErrors = [];
+    previewEntries = [];
     barcodeSequence = 0;
+    currentPreviewFilter = PREVIEW_FILTERS.ALL;
     preview.innerHTML = '';
     progressFill.style.width = '0%';
     progressText.textContent = `0 / ${currentData.length}`;
@@ -246,10 +278,22 @@ async function generateBarcodes() {
                 codiceBarcode: normalizedBarcode
             });
 
-            addPreviewItem(codiceArticolo, normalizedBarcode, true, '', barcodeId);
+            addPreviewEntry({
+                codiceArticolo,
+                codiceBarcode: normalizedBarcode,
+                success: true,
+                errorMsg: '',
+                barcodeId
+            });
             successCount++;
         } catch (error) {
-            addPreviewItem(codiceArticolo, previewBarcode, false, error.message);
+            addPreviewEntry({
+                codiceArticolo,
+                codiceBarcode: previewBarcode,
+                success: false,
+                errorMsg: error.message,
+                barcodeId: ''
+            });
             generationErrors.push({
                 rowIndex: rowNumber,
                 codiceArticolo,
@@ -274,6 +318,52 @@ async function generateBarcodes() {
 
     setUiState(APP_STATES.COMPLETED);
     showAlert('success', `Generazione completata! ${successCount} barcode generati con successo.`);
+}
+
+function setPreviewFilter(nextFilter) {
+    currentPreviewFilter = normalizePreviewFilter(nextFilter);
+    renderPreview();
+}
+
+function addPreviewEntry(entry) {
+    previewEntries.push(entry);
+    renderPreview();
+}
+
+function renderPreview() {
+    const filteredEntries = getFilteredPreviewEntries(previewEntries, currentPreviewFilter);
+
+    preview.innerHTML = '';
+    filteredEntries.forEach((entry) => {
+        const item = createPreviewItem(entry);
+        preview.appendChild(item);
+    });
+
+    updatePreviewFilterCounts();
+    updatePreviewFilterButtons();
+    lucide.createIcons();
+}
+
+function updatePreviewFilterCounts() {
+    const counts = getPreviewFilterCounts(previewEntries);
+
+    previewFilterAllCount.textContent = String(counts.all);
+    previewFilterSuccessCount.textContent = String(counts.success);
+    previewFilterErrorCount.textContent = String(counts.error);
+}
+
+function updatePreviewFilterButtons() {
+    const filters = [
+        { value: PREVIEW_FILTERS.ALL, element: previewFilterAllBtn },
+        { value: PREVIEW_FILTERS.SUCCESS, element: previewFilterSuccessBtn },
+        { value: PREVIEW_FILTERS.ERROR, element: previewFilterErrorBtn }
+    ];
+
+    filters.forEach(({ value, element }) => {
+        const isActive = value === currentPreviewFilter;
+        element.classList.toggle('is-active', isActive);
+        element.setAttribute('aria-pressed', String(isActive));
+    });
 }
 
 function normalizeColumnName(name) {
@@ -354,7 +444,7 @@ function prepareDataRows(jsonData) {
     }));
 }
 
-function addPreviewItem(codiceArticolo, codiceBarcode, success, errorMsg = '', barcodeId = '') {
+function createPreviewItem({ codiceArticolo, codiceBarcode, success, errorMsg = '', barcodeId = '' }) {
     const item = document.createElement('div');
     item.className = 'preview-item';
 
@@ -411,8 +501,7 @@ function addPreviewItem(codiceArticolo, codiceBarcode, success, errorMsg = '', b
         item.appendChild(downloadButton);
     }
 
-    preview.appendChild(item);
-    lucide.createIcons(); // Re-render icons
+    return item;
 }
 
 function downloadSingle(barcodeId) {
