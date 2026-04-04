@@ -1,4 +1,5 @@
-import { calculateEAN13CheckDigit, generateEPS } from './core/ean13.mjs';
+import { generateEPS } from './core/ean13.mjs';
+import { ensureUniqueFilename, normalizeBarcode, sanitizeEpsFilename } from './core/row-utils.mjs';
 
 // Inizializza le icone Lucide
 document.addEventListener('DOMContentLoaded', () => {
@@ -17,12 +18,6 @@ const MAX_UPLOAD_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 const SOFT_UPLOAD_FILE_SIZE_BYTES = 3 * 1024 * 1024;
 const MAX_PROCESSABLE_ROWS = 5000;
 const SOFT_PROCESSABLE_ROWS = 3000;
-const INVALID_FILENAME_CHARS_REGEX = /[<>:"/\\|?*\u0000-\u001f]/g;
-const WINDOWS_RESERVED_NAMES = new Set([
-    'CON', 'PRN', 'AUX', 'NUL',
-    'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9',
-    'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9'
-]);
 const SAFE_USER_ERROR_PATTERNS = [
     /^Nessun file selezionato\./,
     /^Formato file non supportato\./,
@@ -155,6 +150,7 @@ async function generateBarcodes() {
 
     let successCount = 0;
     let errorCount = 0;
+    const filenameCounters = new Map();
 
     for (let i = 0; i < currentData.length; i++) {
         const item = currentData[i];
@@ -167,10 +163,11 @@ async function generateBarcodes() {
             const normalizedBarcode = normalizeBarcode(rawBarcode, rowNumber);
             const epsContent = generateEPS(normalizedBarcode, codiceArticolo);
             const sanitizedFilename = sanitizeEpsFilename(codiceArticolo, rowNumber);
+            const uniqueFilename = ensureUniqueFilename(sanitizedFilename, filenameCounters);
             const barcodeId = `barcode-${barcodeSequence++}`;
             generatedBarcodes.push({
                 id: barcodeId,
-                filename: sanitizedFilename,
+                filename: uniqueFilename,
                 content: epsContent,
                 codiceArticolo,
                 codiceBarcode: normalizedBarcode
@@ -346,8 +343,6 @@ function downloadSingle(barcodeId) {
         downloadFile(barcode.filename, barcode.content);
     }
 }
-
-window.downloadSingle = downloadSingle;
 
 function downloadFile(filename, content) {
     const blob = new Blob([content], { type: 'application/postscript' });
