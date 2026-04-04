@@ -142,9 +142,10 @@ Descrizione: facilitare diagnosi su lotti grandi.
 Done quando: filtro attivo e conteggi coerenti.
 Nota avanzamento: aggiunta toolbar filtri preview (Tutti/Successi/Errori) con conteggi in tempo reale, stato attivo accessibile (`aria-pressed`), rendering coerente durante la generazione e test automatici dedicati su logica filtri e presenza UI.
 
-[ ] Aggiungere azioni batch (download solo validi, reset sessione)  
+[x] Aggiungere azioni batch (download solo validi, reset sessione)  
 Descrizione: rendere il flusso più rapido e meno ambiguo.  
 Done quando: pulsanti disponibili e comportamento testato.
+Nota avanzamento: rinominata l’azione bulk in UI come download dei soli validi (`Scarica validi (ZIP)`) e introdotto bottone `Reset sessione` con pulizia completa di dati caricati, preview, progress e contatori, riportando la macchina a stati in `idle`; aggiornata la smoke e2e sui nuovi controlli.
 
 [ ] Allineare copy UI e naming file con documentazione  
 Descrizione: eliminare mismatch tra README e file reali del repo.  

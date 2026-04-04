@@ -51,6 +51,7 @@ const generateBtn = document.getElementById('generateBtn');
 const downloadAllBtn = document.getElementById('downloadAllBtn');
 const downloadErrorsCsvBtn = document.getElementById('downloadErrorsCsvBtn');
 const downloadErrorsJsonBtn = document.getElementById('downloadErrorsJsonBtn');
+const resetSessionBtn = document.getElementById('resetSessionBtn');
 const previewFilters = document.getElementById('previewFilters');
 const previewFilterAllBtn = document.getElementById('previewFilterAllBtn');
 const previewFilterSuccessBtn = document.getElementById('previewFilterSuccessBtn');
@@ -86,6 +87,7 @@ function setUiState(nextState) {
         toggleElementDisplay(downloadAllBtn, false);
         toggleElementDisplay(downloadErrorsCsvBtn, false);
         toggleElementDisplay(downloadErrorsJsonBtn, false);
+        toggleElementDisplay(resetSessionBtn, false);
         generateBtn.disabled = true;
         break;
     case APP_STATES.FILE_READY:
@@ -96,6 +98,7 @@ function setUiState(nextState) {
         toggleElementDisplay(downloadAllBtn, false);
         toggleElementDisplay(downloadErrorsCsvBtn, false);
         toggleElementDisplay(downloadErrorsJsonBtn, false);
+        toggleElementDisplay(resetSessionBtn, true, 'inline-flex');
         generateBtn.disabled = !hasRows;
         break;
     case APP_STATES.GENERATING:
@@ -106,6 +109,7 @@ function setUiState(nextState) {
         toggleElementDisplay(downloadAllBtn, false);
         toggleElementDisplay(downloadErrorsCsvBtn, false);
         toggleElementDisplay(downloadErrorsJsonBtn, false);
+        toggleElementDisplay(resetSessionBtn, true, 'inline-flex');
         generateBtn.disabled = true;
         break;
     case APP_STATES.COMPLETED:
@@ -116,6 +120,7 @@ function setUiState(nextState) {
         toggleElementDisplay(downloadAllBtn, hasGeneratedItems, 'inline-flex');
         toggleElementDisplay(downloadErrorsCsvBtn, hasErrors, 'inline-flex');
         toggleElementDisplay(downloadErrorsJsonBtn, hasErrors, 'inline-flex');
+        toggleElementDisplay(resetSessionBtn, true, 'inline-flex');
         generateBtn.disabled = !hasRows;
         break;
     case APP_STATES.ERROR:
@@ -123,6 +128,7 @@ function setUiState(nextState) {
         toggleElementDisplay(downloadAllBtn, false);
         toggleElementDisplay(downloadErrorsCsvBtn, false);
         toggleElementDisplay(downloadErrorsJsonBtn, false);
+        toggleElementDisplay(resetSessionBtn, hasRows || hasGeneratedItems || hasErrors, 'inline-flex');
         toggleElementDisplay(preview, hasGeneratedItems || hasErrors, 'block');
         toggleElementDisplay(previewFilters, hasPreviewEntries, 'flex');
         toggleElementDisplay(stats, hasRows, 'block');
@@ -581,6 +587,30 @@ downloadErrorsJsonBtn.addEventListener('click', () => {
     );
     showAlert('success', `Report JSON errori scaricato (${generationErrors.length} righe).`);
 });
+resetSessionBtn.addEventListener('click', resetSession);
+
+function resetSession() {
+    currentData = [];
+    generatedBarcodes = [];
+    generationErrors = [];
+    previewEntries = [];
+    barcodeSequence = 0;
+    currentPreviewFilter = PREVIEW_FILTERS.ALL;
+
+    fileInput.value = '';
+    document.getElementById('totalCount').textContent = 0;
+    document.getElementById('successCount').textContent = 0;
+    document.getElementById('errorCount').textContent = 0;
+
+    preview.innerHTML = '';
+    progressFill.style.width = '0%';
+    progressText.textContent = '0 / 0';
+
+    showAlert('success', 'Sessione resettata. Carica un nuovo file per iniziare.');
+    setUiState(APP_STATES.IDLE);
+    updatePreviewFilterCounts();
+    updatePreviewFilterButtons();
+}
 
 function showAlert(type, message, durationMs = 5000) {
     const alertConfig = {
