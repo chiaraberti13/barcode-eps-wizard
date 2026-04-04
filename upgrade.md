@@ -77,9 +77,10 @@ Done quando: i comandi sono documentati ed eseguibili localmente.
 Descrizione: imporre standard codice uniforme e prevenire errori banali.  
 Done quando: lint e format passano senza warning bloccanti.
 
-[ ] Aggiungere `.editorconfig` e convenzioni naming  
+[x] Aggiungere `.editorconfig` e convenzioni naming
 Descrizione: allineare indentazione, newline, encoding e naming file/funzioni.  
 Done quando: regole visibili nel repo e rispettate dal codice.
+Nota avanzamento: aggiunto `.editorconfig` con regole cross-platform (UTF-8, LF, newline finale, indentazione a 2 spazi) e documentate convenzioni di naming in README per JavaScript/CSS/file.
 
 ### B. Backend logic (client-side core)
 
