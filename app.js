@@ -12,7 +12,9 @@ const REQUIRED_COLUMNS = {
 };
 const VALID_FILE_EXTENSIONS = new Set(['xlsx', 'xls', 'csv']);
 const MAX_UPLOAD_FILE_SIZE_BYTES = 5 * 1024 * 1024;
+const SOFT_UPLOAD_FILE_SIZE_BYTES = 3 * 1024 * 1024;
 const MAX_PROCESSABLE_ROWS = 5000;
+const SOFT_PROCESSABLE_ROWS = 3000;
 const INVALID_FILENAME_CHARS_REGEX = /[<>:"/\\|?*\u0000-\u001f]/g;
 const WINDOWS_RESERVED_NAMES = new Set([
     'CON', 'PRN', 'AUX', 'NUL',
@@ -30,6 +32,7 @@ const progressText = document.getElementById('progressText');
 const stats = document.getElementById('stats');
 const preview = document.getElementById('preview');
 const successAlert = document.getElementById('successAlert');
+const warningAlert = document.getElementById('warningAlert');
 const errorAlert = document.getElementById('errorAlert');
 
 // Upload area events
@@ -77,6 +80,7 @@ function handleFile(file) {
             const jsonData = XLSX.utils.sheet_to_json(firstSheet);
 
             const preparedData = prepareDataRows(jsonData);
+            const datasetWarnings = getDatasetWarnings(file, preparedData.length);
 
             currentData = preparedData;
             document.getElementById('totalCount').textContent = preparedData.length;
@@ -84,6 +88,9 @@ function handleFile(file) {
             stats.style.display = 'block';
 
             showAlert('success', `File caricato con successo! ${preparedData.length} righe trovate.`);
+            if (datasetWarnings.length > 0) {
+                showAlert('warning', datasetWarnings.join(' '), 9000);
+            }
         } catch (error) {
             showAlert('error', `Errore nella lettura del file: ${error.message}`);
             currentData = [];
@@ -93,6 +100,25 @@ function handleFile(file) {
     };
     
     reader.readAsArrayBuffer(file);
+}
+
+function getDatasetWarnings(file, rowCount) {
+    const warnings = [];
+    const fileSizeMb = (file.size / (1024 * 1024)).toFixed(1);
+
+    if (file.size >= SOFT_UPLOAD_FILE_SIZE_BYTES) {
+        warnings.push(
+            `File grande (${fileSizeMb}MB): la generazione potrebbe richiedere più tempo.`
+        );
+    }
+
+    if (rowCount >= SOFT_PROCESSABLE_ROWS) {
+        warnings.push(
+            `Dataset esteso (${rowCount} righe): evita altre app aperte per ridurre rallentamenti.`
+        );
+    }
+
+    return warnings;
 }
 
 generateBtn.addEventListener('click', generateBarcodes);
@@ -609,10 +635,20 @@ downloadAllBtn.addEventListener('click', async () => {
     }
 });
 
-function showAlert(type, message) {
-    const alert = type === 'success' ? successAlert : errorAlert;
-    const textElement = type === 'success' ? document.getElementById('successText') : document.getElementById('errorText');
-    
+function showAlert(type, message, durationMs = 5000) {
+    const alertConfig = {
+        success: { alert: successAlert, textElement: document.getElementById('successText') },
+        warning: { alert: warningAlert, textElement: document.getElementById('warningText') },
+        error: { alert: errorAlert, textElement: document.getElementById('errorText') }
+    };
+    const selectedConfig = alertConfig[type] || alertConfig.error;
+    const allAlerts = [successAlert, warningAlert, errorAlert];
+
+    allAlerts.forEach((alertElement) => {
+        alertElement.style.display = 'none';
+    });
+
+    const { alert, textElement } = selectedConfig;
     textElement.textContent = message;
     alert.style.display = 'flex';
     
@@ -621,6 +657,6 @@ function showAlert(type, message) {
     
     setTimeout(() => {
         alert.style.display = 'none';
-    }, 5000);
+    }, durationMs);
 }
     
