@@ -34,6 +34,7 @@ Web app **standalone in singolo file HTML** per generare barcode EAN-13 in forma
 - Accessibilità solo parziale (focus, ARIA, contrasti, annunci screen reader, tastiera).
 - Coerenza documentale da verificare (README menziona nomi file diversi dal repo reale).
 - Qualità EPS da validare con test comparativi su casi edge.
+- **Rilevazione pre-esistente:** sezione Testing non completamente allineata allo stato reale (alcuni test EAN-13 risultano già presenti ma task ancora non marcati).
 
 ### ❌ Mancante
 - Test automatici (unit/integration/e2e).
@@ -91,9 +92,10 @@ Descrizione: separare `calculateEAN13CheckDigit`, `encodeEAN13`, generator EPS d
 Done quando: modulo puro richiamato dalla UI e coperto da unit test.
 Nota avanzamento: creata la libreria pura `core/ean13.mjs` con check digit/encoding/generazione EPS, importata da `app.js` (script ES module) e coperta da test unitari dedicati in `tests/unit/ean13-core.test.mjs`.
 
-[ ] Formalizzare contratto input/output del generatore EPS  
+[x] Formalizzare contratto input/output del generatore EPS  
 Descrizione: definire precondizioni (cifre ammesse, lunghezza, caratteri) e output atteso.  
 Done quando: documentazione tecnica e test su casi validi/non validi.
+Nota avanzamento: introdotta validazione/normalizzazione esplicita EAN-13 nel core (`normalizeEAN13Input`), verifica check digit anche su input a 13 cifre, aggiornati i test unitari per casi validi/non validi e aggiunta documentazione tecnica del contratto I/O in `docs/ean13-contract.md`.
 
 [ ] Gestire in modo deterministico i casi duplicati `Codice articolo`  
 Descrizione: decidere policy (sovrascrivi/blocca/suffisso progressivo) e applicarla.  

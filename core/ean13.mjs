@@ -1,4 +1,32 @@
+const EAN_12_REGEX = /^\d{12}$/;
+const EAN_13_REGEX = /^\d{13}$/;
+
+export function normalizeEAN13Input(code) {
+  const normalizedCode = String(code ?? '').trim();
+
+  if (EAN_12_REGEX.test(normalizedCode)) {
+    return `${normalizedCode}${calculateEAN13CheckDigit(normalizedCode)}`;
+  }
+
+  if (EAN_13_REGEX.test(normalizedCode)) {
+    const expectedCheckDigit = calculateEAN13CheckDigit(normalizedCode.slice(0, 12));
+    const receivedCheckDigit = Number.parseInt(normalizedCode[12], 10);
+
+    if (expectedCheckDigit !== receivedCheckDigit) {
+      throw new Error('Check digit EAN-13 non valido.');
+    }
+
+    return normalizedCode;
+  }
+
+  throw new Error('Codice EAN-13 non valido: sono ammesse solo 12 o 13 cifre numeriche.');
+}
+
 export function calculateEAN13CheckDigit(code12) {
+  if (!EAN_12_REGEX.test(String(code12 ?? ''))) {
+    throw new Error('Per il check digit sono richieste esattamente 12 cifre numeriche.');
+  }
+
   let sumOdd = 0;
   let sumEven = 0;
 
@@ -39,13 +67,7 @@ export function encodeEAN13(code) {
     'LGGLLG', 'LGGGLL', 'LGLGLG', 'LGLGGL', 'LGGLGL'
   ];
 
-  let normalizedCode = String(code || '');
-
-  if (normalizedCode.length === 12) {
-    normalizedCode = normalizedCode + calculateEAN13CheckDigit(normalizedCode);
-  } else if (normalizedCode.length !== 13) {
-    throw new Error(`Codice deve avere 12 o 13 cifre, ha ${normalizedCode.length}`);
-  }
+  const normalizedCode = normalizeEAN13Input(code);
 
   const firstDigit = normalizedCode[0];
   const pattern = firstDigitPatterns[parseInt(firstDigit, 10)];
@@ -69,8 +91,9 @@ export function encodeEAN13(code) {
   return bars;
 }
 
-export function generateEPS(codiceBarcode, codiceArticolo) {
-  const bars = encodeEAN13(codiceBarcode);
+export function generateEPS(codiceBarcode, _codiceArticolo = '') {
+  const normalizedCode = normalizeEAN13Input(codiceBarcode);
+  const bars = encodeEAN13(normalizedCode);
   const barWidth = 1.0;
   const barHeight = 50.0;
   const textHeight = 5.0;
@@ -81,7 +104,7 @@ export function generateEPS(codiceBarcode, codiceArticolo) {
 
   let eps = `%!PS-Adobe-3.0 EPSF-3.0
 %%Creator: Century Italia Barcode Generator
-%%Title: ${codiceBarcode}
+%%Title: ${normalizedCode}
 %%Pages: 0
 %%BoundingBox: 0 0 ${Math.round(totalWidth)} ${Math.round(totalHeight)}
 %%EndComments
@@ -137,14 +160,14 @@ matrix currentmatrix
 
   const firstDigitX = quietZone - 6.0;
   eps += ` 0 0 moveto ${firstDigitX.toFixed(2)} 1.50 translate 0.00 rotate 0 0 moveto
- (${codiceBarcode[0]}) stringwidth
+ (${normalizedCode[0]}) stringwidth
 pop
 -2 div 0 rmoveto
- (${codiceBarcode[0]}) show
+ (${normalizedCode[0]}) show
 setmatrix
 `;
 
-  const leftText = codiceBarcode.substring(1, 7);
+  const leftText = normalizedCode.substring(1, 7);
   const leftTextX = quietZone + (bars.length / 4 * barWidth);
   eps += `matrix currentmatrix
 /Helvetica findfont
@@ -157,7 +180,7 @@ pop
 setmatrix
 `;
 
-  const rightText = codiceBarcode.substring(7, 13);
+  const rightText = normalizedCode.substring(7, 13);
   const rightTextX = quietZone + (3 * bars.length / 4 * barWidth);
   eps += `matrix currentmatrix
 /Helvetica findfont
