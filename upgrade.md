@@ -64,9 +64,10 @@ Web app **standalone in singolo file HTML** per generare barcode EAN-13 in forma
 
 ### A. Setup / Configurazione progetto
 
-[ ] Definire struttura minima di progetto multi-file (separare HTML/CSS/JS senza cambiare feature)  
+[x] Definire struttura minima di progetto multi-file (separare HTML/CSS/JS senza cambiare feature)  
 Descrizione: preparare baseline manutenibile mantenendo comportamento invariato.  
 Done quando: file separati e caricati correttamente, app funzionante end-to-end come oggi.
+Nota avanzamento: estratti CSS e JavaScript inline in `styles.css` e `app.js`, aggiornato l'HTML per caricare asset esterni mantenendo invariata la pipeline funzionale.
 
 [ ] Introdurre package manager e script standard (`lint`, `test`, `test:e2e`, `build-check`)  
 Descrizione: aggiungere toolchain minima per qualità continua.  
