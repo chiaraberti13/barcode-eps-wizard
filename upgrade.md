@@ -221,9 +221,10 @@ Done quando: input non conforme viene bloccato con errore esplicito.
 Descrizione: escaping/sanitizzazione dei caratteri prima della serializzazione PostScript.  
 Done quando: payload malevoli non alterano la sintassi EPS.
 
-[ ] Limitare dimensione file e numero record processabili  
+[x] Limitare dimensione file e numero record processabili  
 Descrizione: mitigare DoS client-side e consumo memoria eccessivo.  
 Done quando: soglie hard/soft presenti e testate.
+Nota avanzamento: introdotte soglie hard (`MAX_UPLOAD_FILE_SIZE_BYTES = 5MB`, `MAX_PROCESSABLE_ROWS = 5000`) con blocco immediato e soglie soft (`SOFT_UPLOAD_FILE_SIZE_BYTES = 3MB`, `SOFT_PROCESSABLE_ROWS = 3000`) con avviso preventivo in UI per dataset pesanti.
 
 [ ] Centralizzare gestione errori senza leak di dettagli sensibili  
 Descrizione: distinguere errore tecnico interno da messaggio user-friendly.  
