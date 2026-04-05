@@ -274,9 +274,10 @@ Done quando: profilo header documentato e verificato in ambiente di test.
 Descrizione: guidare utente alla prima esecuzione senza leggere manuale lungo.  
 Done quando: flow “upload → genera → scarica” è autoesplicativo.
 
-[ ] Introdurre stati vuoti e stati errore dedicati  
+[x] Introdurre stati vuoti e stati errore dedicati  
 Descrizione: evitare UI “silenziosa” quando non ci sono risultati o ci sono fallimenti totali.  
 Done quando: ogni stato mostra call-to-action chiara.
+Nota avanzamento: introdotto componente dedicato `previewEmptyState` con messaggi contestuali per stato `idle`, file pronto, generazione in corso, errore e risultati filtrati vuoti; aggiornato il rendering UI per mostrare CTA esplicite anche in assenza risultati e aggiunto controllo smoke sul markup.
 
 [ ] Migliorare accessibilità tastiera e screen reader  
 Descrizione: focus visibile, tab-order corretto, ARIA labels/live region sugli alert.  
