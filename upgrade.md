@@ -257,9 +257,10 @@ Nota avanzamento: introdotta gestione centralizzata errori (`handleError`) con l
 Descrizione: pin versioni, verificare integrità (SRI), prevedere fallback locale.  
 Done quando: librerie esterne controllate e aggiornabili in sicurezza.
 
-[ ] Eseguire checklist OWASP Top 10 (contesto app client-side)  
+[x] Eseguire checklist OWASP Top 10 (contesto app client-side)  
 Descrizione: valutare rischi pertinenti (injection, insecure design, dependency risks, data integrity).  
 Done quando: report con rischio/mitigazione/stato per ogni voce rilevante.
+Nota avanzamento: aggiunto report strutturato `docs/owasp-top10-checklist.md` con mappatura OWASP Top 10 2021, stato per voce (mitigato/parziale/N/A), evidenze correnti e piano di chiusura dei rischi residui (CDN supply-chain, security header, UX anti-errore).
 
 [ ] Hardening browser-side (CSP, Referrer-Policy, X-Content-Type-Options via hosting)  
 Descrizione: definire header consigliati per deployment web statico.  
