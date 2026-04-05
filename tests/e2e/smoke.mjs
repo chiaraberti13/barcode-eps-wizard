@@ -19,7 +19,9 @@ assert.match(html, /Guida rapida/, 'Manca il titolo onboarding "Guida rapida".')
 assert.match(html, /id="statusLog"/, 'Manca il feedback persistente post-azione.');
 assert.match(html, /role="button" tabindex="0"/, 'Upload area non accessibile via tastiera.');
 assert.match(html, /id="errorAlert"[^>]*role="alert"/, 'Manca role alert per errori critici screen reader.');
-assert.match(html, /integrity=/, 'Manca il pinning SRI delle dipendenze CDN.');
+assert.match(html, /cdnjs\.cloudflare\.com\/ajax\/libs\/xlsx\/0\.18\.5\/xlsx\.full\.min\.js/, 'Manca il pinning versione CDN di SheetJS.');
+assert.match(html, /cdnjs\.cloudflare\.com\/ajax\/libs\/jszip\/3\.10\.1\/jszip\.min\.js/, 'Manca il pinning versione CDN di JSZip.');
+assert.match(html, /cdnjs\.cloudflare\.com\/ajax\/libs\/lucide\/0\.468\.0\/umd\/lucide\.min\.js/, 'Manca il pinning versione CDN di Lucide.');
 assert.match(html, /vendor\/xlsx\.full\.min\.js/, 'Manca fallback locale SheetJS.');
 
 console.log('E2E smoke OK: struttura UI minima presente.');

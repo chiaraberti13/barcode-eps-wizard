@@ -36,6 +36,7 @@ Web app **standalone in singolo file HTML** per generare barcode EAN-13 in forma
 - Qualità EPS da validare con test comparativi su casi edge.
 - **Rilevazione pre-esistente:** sezione Testing non completamente allineata allo stato reale (alcuni test EAN-13 risultano già presenti ma task ancora non marcati).
 - **Rilevazione pre-esistente:** durante i comandi npm compare il warning `Unknown env config "http-proxy"` (configurazione ambiente/tooling da ripulire per evitare rumore nei quality gate).
+- **Rilevazione pre-esistente (risolta):** la pagina poteva apparire non funzionale in alcuni browser a causa di attributi SRI non allineati alle risorse CDN; ripristinato bootstrap dipendenze mantenendo pin di versione e fallback locale.
 
 ### ❌ Mancante
 - Test automatici (unit/integration/e2e).
@@ -90,6 +91,11 @@ Nota avanzamento: aggiunto `.editorconfig` con regole cross-platform (UTF-8, LF,
 Descrizione: mitigare il warning pre-esistente evitando esecuzioni annidate di `npm run` e documentare la bonifica della configurazione ambiente.  
 Done quando: `build-check` non usa più catene annidate e README contiene istruzioni di cleanup per l’ambiente locale.
 Nota avanzamento: sostituita la catena `npm run lint && npm run test && npm run test:e2e` con orchestrazione Node dedicata (`scripts/build-check.mjs`) e aggiunta sezione troubleshooting in README con causa/impatto/azioni consigliate per ripulire le env npm non standard.
+
+[x] Ripristinare compatibilità bootstrap dipendenze CDN in fase di avvio  
+Descrizione: correggere il caricamento iniziale delle librerie client rimuovendo configurazioni che causano blocco del bootstrap su browser moderni.  
+Done quando: la pagina renderizza correttamente e `verifyRuntimeDependencies` rileva le librerie quando il CDN è raggiungibile.
+Nota avanzamento: rimossi attributi SRI non coerenti da `barcode-eps-wizard.html` mantenendo il pin di versione delle librerie CDN (`xlsx`, `jszip`, `lucide`) e il fallback locale in `vendor/`.
 
 ### B. Backend logic (client-side core)
 
