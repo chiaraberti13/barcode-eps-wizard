@@ -32,6 +32,31 @@ test('generateEPS produce output PostScript con header e bounding box', () => {
   assert.match(eps, /showpage/);
 });
 
+test('generateEPS include guard bars in posizioni start/center/end', () => {
+  const eps = generateEPS('5901234123457', 'ART-001');
+
+  assert.match(eps, /\b10\.00 1\.00 TR\b/);
+  assert.match(eps, /\b12\.00 1\.00 TR\b/);
+  assert.match(eps, /\b56\.50 1\.00 TR\b/);
+  assert.match(eps, /\b58\.50 1\.00 TR\b/);
+  assert.match(eps, /\b102\.00 1\.00 TR\b/);
+  assert.match(eps, /\b104\.00 1\.00 TR\b/);
+});
+
+test('generateEPS renderizza correttamente le tre sezioni testo cifre', () => {
+  const eps = generateEPS('5901234123457', 'ART-001');
+
+  assert.match(eps, /\(5\) show/);
+  assert.match(eps, /\(901234\) show/);
+  assert.match(eps, /\(123457\) show/);
+});
+
+test('generateEPS calcola bounding box deterministico per EAN-13 standard', () => {
+  const eps = generateEPS('5901234123457', 'ART-001');
+
+  assert.match(eps, /%%BoundingBox: 0 0 115 61/);
+});
+
 
 test('generateEPS sanitizza metadati DSC contro payload con newline e percentuali', () => {
   const eps = generateEPS('5901234123457', `Articolo

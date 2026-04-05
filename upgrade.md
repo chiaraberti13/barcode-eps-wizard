@@ -180,9 +180,10 @@ Descrizione: coprire casi standard, invalidi, edge numerici.
 Done quando: copertura logica core definita e green.
 Nota avanzamento: completata la suite `tests/unit/ean13-core.test.mjs` su check digit/encoding includendo casi standard, input invalidi e edge numerici (tutti 0/tutti 9, cifre Unicode non ASCII); test eseguiti in verde con `npm test`.
 
-[ ] Scrivere unit test per generazione EPS  
+[x] Scrivere unit test per generazione EPS  
 Descrizione: verificare intestazioni EPS, bounding box, guard bars, testo cifre.  
 Done quando: snapshot/asserzioni passano su dataset noto.
+Nota avanzamento: estesa `tests/unit/ean13-core.test.mjs` con asserzioni puntuali su header EPS, `showpage`, bounding box deterministico (`115x61`), posizioni guard bars (start/center/end) e testo cifre renderizzato (`prima`, `sinistra`, `destra`); verifica completata con suite `npm test` in verde.
 
 [ ] Scrivere test integrazione parsing file + pipeline generazione  
 Descrizione: simulare file esempio e validare output atteso.  
