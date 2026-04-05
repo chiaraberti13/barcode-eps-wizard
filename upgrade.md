@@ -354,6 +354,12 @@ Nota avanzamento: refactor completo di `addPreviewItem` con creazione nodi DOM s
 
 
 ### Bug/failure pre-esistenti rilevati
+
+- [x] Correggere accesso dipendenze globali in script ES module (`window.XLSX`/`window.JSZip`)
+  Descrizione: in `type=module` i globali caricati da script esterni non sono binding lessicali automatici (`XLSX`/`JSZip`), con rischio di errore runtime in locale.
+  Done quando: parsing Excel e ZIP usano esplicitamente i globali su `window`, senza `ReferenceError`.
+  Nota avanzamento: aggiornato `app.js` per usare `window.XLSX` e `window.JSZip` in modo esplicito anche in esecuzione `type=module`, eliminando possibili `ReferenceError` in locale.
+
 - [x] Possibile injection HTML/JS in preview/download: `codiceArticolo` viene interpolato in `innerHTML` e in `onclick` inline senza escaping (corretto con rendering DOM sicuro e listener non inline, senza interpolazione HTML).
 
 - [x] Errore runtime pre-esistente: funzioni `normalizeBarcode`/`sanitizeEpsFilename` richiamate ma non definite in `app.js` (risolto con estrazione utilità condivise in `core/row-utils.mjs` e import espliciti nella UI).
