@@ -185,9 +185,10 @@ Descrizione: verificare intestazioni EPS, bounding box, guard bars, testo cifre.
 Done quando: snapshot/asserzioni passano su dataset noto.
 Nota avanzamento: estesa `tests/unit/ean13-core.test.mjs` con asserzioni puntuali su header EPS, `showpage`, bounding box deterministico (`115x61`), posizioni guard bars (start/center/end) e testo cifre renderizzato (`prima`, `sinistra`, `destra`); verifica completata con suite `npm test` in verde.
 
-[ ] Scrivere test integrazione parsing file + pipeline generazione  
+[x] Scrivere test integrazione parsing file + pipeline generazione  
 Descrizione: simulare file esempio e validare output atteso.  
 Done quando: test riproduce flusso utente completo senza intervento manuale.
+Nota avanzamento: introdotto modulo condiviso `core/data-rows.mjs` per il parsing robusto delle righe (header normalizzati + mapping colonne obbligatorie) e aggiunta suite `tests/unit/parsing-generation-integration.test.mjs` che simula un dataset reale end-to-end (parsing -> normalizzazione barcode -> generazione EPS -> naming file univoco -> tracciamento errori riga).
 
 [ ] Scrivere e2e test UI (upload → generate → download)  
 Descrizione: garantire comportamento funzionale in browser moderno.  

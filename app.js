@@ -2,6 +2,7 @@ import { generateEPS } from './core/ean13.mjs';
 import { ensureUniqueFilename, normalizeBarcode, sanitizeEpsFilename } from './core/row-utils.mjs';
 import { buildErrorReportCsv, buildErrorReportJson } from './core/error-report.mjs';
 import { buildProgressFeedback } from './core/progress-feedback.mjs';
+import { prepareDataRows } from './core/data-rows.mjs';
 import {
     PREVIEW_FILTERS,
     getFilteredPreviewEntries,
@@ -198,7 +199,12 @@ function handleFile(file) {
             const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
             const jsonData = XLSX.utils.sheet_to_json(firstSheet);
 
-            const preparedData = prepareDataRows(jsonData);
+            const preparedData = prepareDataRows(jsonData, {
+                maxProcessableRows: MAX_PROCESSABLE_ROWS,
+                requiredColumns: REQUIRED_COLUMNS,
+                requiredColumnLabels: REQUIRED_COLUMN_LABELS,
+                expectedColumnsMessage: `${UPLOAD_INSTRUCTIONS.expectedColumns} ${UPLOAD_INSTRUCTIONS.correctionHint}`
+            });
             const datasetWarnings = getDatasetWarnings(file, preparedData.length);
 
             currentData = preparedData;
@@ -394,85 +400,6 @@ function updatePreviewFilterButtons() {
         element.classList.toggle('is-active', isActive);
         element.setAttribute('aria-pressed', String(isActive));
     });
-}
-
-function normalizeColumnName(name) {
-    return String(name || '')
-        .normalize('NFKD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/\s+/g, '')
-        .toLowerCase();
-}
-
-function getFileExtension(filename) {
-    const safeFilename = String(filename || '');
-    const lastDotIndex = safeFilename.lastIndexOf('.');
-
-    if (lastDotIndex === -1 || lastDotIndex === safeFilename.length - 1) {
-        return '';
-    }
-
-    return safeFilename.slice(lastDotIndex + 1).toLowerCase();
-}
-
-function validateSelectedFile(file) {
-    if (!file) {
-        throw new Error('Nessun file selezionato.');
-    }
-
-    const extension = getFileExtension(file.name);
-    if (!VALID_FILE_EXTENSIONS.has(extension)) {
-        throw new Error(`Formato file non supportato. ${UPLOAD_INSTRUCTIONS.supportedFormats} Esporta il file in uno dei formati indicati e riprova.`);
-    }
-
-    if (file.size > MAX_UPLOAD_FILE_SIZE_BYTES) {
-        const maxSizeMb = Math.round(MAX_UPLOAD_FILE_SIZE_BYTES / (1024 * 1024));
-        throw new Error(`File troppo grande. Dimensione massima consentita: ${maxSizeMb}MB. Riduci il file (meno colonne/righe) oppure dividilo in più lotti.`);
-    }
-}
-
-function resolveRequiredColumns(headers) {
-    const normalizedHeaders = new Map();
-
-    headers.forEach((header) => {
-        const normalized = normalizeColumnName(header);
-        if (normalized) {
-            normalizedHeaders.set(normalized, header);
-        }
-    });
-
-    const resolvedColumns = {};
-
-    for (const [field, acceptedNames] of Object.entries(REQUIRED_COLUMNS)) {
-        const matchedNormalizedName = acceptedNames.find((candidate) => normalizedHeaders.has(candidate));
-
-        if (!matchedNormalizedName) {
-            const requiredLabel = REQUIRED_COLUMN_LABELS[field];
-            throw new Error(`Colonna obbligatoria mancante: ${requiredLabel}. ${UPLOAD_INSTRUCTIONS.expectedColumns} ${UPLOAD_INSTRUCTIONS.correctionHint}`);
-        }
-
-        resolvedColumns[field] = normalizedHeaders.get(matchedNormalizedName);
-    }
-
-    return resolvedColumns;
-}
-
-function prepareDataRows(jsonData) {
-    if (!Array.isArray(jsonData) || jsonData.length === 0) {
-        throw new Error(`Il file non contiene righe dati. Inserisci almeno una riga con ${UPLOAD_INSTRUCTIONS.expectedColumns.toLowerCase()}`);
-    }
-
-    if (jsonData.length > MAX_PROCESSABLE_ROWS) {
-        throw new Error(`Il file contiene ${jsonData.length} righe. Limite massimo supportato: ${MAX_PROCESSABLE_ROWS}. Suddividi il dataset in più file per evitare blocchi del browser.`);
-    }
-
-    const headers = Object.keys(jsonData[0] || {});
-    const resolvedColumns = resolveRequiredColumns(headers);
-
-    return jsonData.map((row) => ({
-        codiceArticolo: row[resolvedColumns.codiceArticolo],
-        barcode: row[resolvedColumns.barcode]
-    }));
 }
 
 function createPreviewItem({ codiceArticolo, codiceBarcode, success, errorMsg = '', barcodeId = '' }) {
