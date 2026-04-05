@@ -12,6 +12,11 @@ test('calculateEAN13CheckDigit calcola correttamente il check digit', () => {
   assert.equal(calculateEAN13CheckDigit('590123412345'), 7);
 });
 
+test('calculateEAN13CheckDigit gestisce edge numerici (tutti zero e tutti nove)', () => {
+  assert.equal(calculateEAN13CheckDigit('000000000000'), 0);
+  assert.equal(calculateEAN13CheckDigit('999999999999'), 4);
+});
+
 test('encodeEAN13 genera sequenza barre EAN-13 lunga 95 moduli', () => {
   const bars = encodeEAN13('5901234123457');
   assert.equal(bars.length, 95);
@@ -47,6 +52,10 @@ test('normalizeEAN13Input accetta input a 12 cifre e aggiunge check digit', () =
 
 test('normalizeEAN13Input rifiuta caratteri non numerici', () => {
   assert.throws(() => normalizeEAN13Input('59012341ABCD'), /Codice EAN-13 non valido/);
+});
+
+test('normalizeEAN13Input rifiuta cifre Unicode non ASCII', () => {
+  assert.throws(() => normalizeEAN13Input('１２３４５６７８９０１２'), /Codice EAN-13 non valido/);
 });
 
 test('normalizeEAN13Input rifiuta EAN-13 con check digit errato', () => {

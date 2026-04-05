@@ -175,9 +175,10 @@ Done quando: checklist visuale completata su tutti i breakpoint previsti.
 
 ### F. Testing
 
-[ ] Scrivere unit test per check digit/encoding EAN-13  
+[x] Scrivere unit test per check digit/encoding EAN-13  
 Descrizione: coprire casi standard, invalidi, edge numerici.  
 Done quando: copertura logica core definita e green.
+Nota avanzamento: completata la suite `tests/unit/ean13-core.test.mjs` su check digit/encoding includendo casi standard, input invalidi e edge numerici (tutti 0/tutti 9, cifre Unicode non ASCII); test eseguiti in verde con `npm test`.
 
 [ ] Scrivere unit test per generazione EPS  
 Descrizione: verificare intestazioni EPS, bounding box, guard bars, testo cifre.  
