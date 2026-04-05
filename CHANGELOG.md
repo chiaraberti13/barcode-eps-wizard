@@ -33,6 +33,7 @@ Il formato segue [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) e i
 - Download bulk rinominato a `Scarica validi (ZIP)` e aggiunto reset sessione.
 
 ### Fixed
+- Migliorato il bootstrap della pagina HTML con diagnostica esplicita se i moduli ES non si avviano (tipicamente apertura tramite `file://`): ora viene mostrato un pannello di errore invece di una pagina apparentemente bianca.
 - Sanitizzazione robusta dei nomi file EPS cross-platform e gestione duplicati deterministica.
 - Validazione barcode con normalizzazione sicura e check digit su EAN-13.
 - Escaping metadata/literal EPS per mitigare injection PostScript.

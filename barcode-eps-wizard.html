@@ -30,6 +30,71 @@
     <script>if (!window.lucide) { document.write('<script src="./vendor/lucide.min.js"><\\/script>'); }</script>
 
     <link rel="stylesheet" href="./styles.css">
+
+    <script>
+        window.__APP_BOOT_STATE__ = {
+            startedAt: Date.now(),
+            booted: false,
+            errors: []
+        };
+
+        function renderBootError(message) {
+            const appContainer = document.querySelector('.container');
+            if (appContainer) {
+                appContainer.style.display = 'none';
+            }
+
+            let panel = document.getElementById('bootErrorPanel');
+            if (!panel) {
+                panel = document.createElement('section');
+                panel.id = 'bootErrorPanel';
+                panel.className = 'boot-error-panel';
+                document.body.prepend(panel);
+            }
+
+            panel.innerHTML = [
+                '<h2>Impossibile avviare l'applicazione</h2>',
+                `<p>${message}</p>`,
+                '<ol>',
+                '<li>Apri il progetto da una URL HTTP (es: <code>http://localhost:8080/barcode-eps-wizard.html</code>) e non da <code>file://</code>.</li>',
+                '<li>Verifica che <code>app.js</code> e i moduli in <code>core/*.mjs</code> siano raggiungibili.</li>',
+                '<li>Controlla la Console del browser per il dettaglio tecnico dell\'errore.</li>',
+                '</ol>'
+            ].join('');
+        }
+
+        window.addEventListener('error', (event) => {
+            const fileName = event?.filename || '';
+            const isAppModuleError = fileName.includes('/app.js') || fileName.includes('/core/');
+            if (!isAppModuleError) {
+                return;
+            }
+
+            const message = event?.message || 'Errore JavaScript durante l\'inizializzazione.';
+            window.__APP_BOOT_STATE__.errors.push(message);
+            renderBootError(message);
+        });
+
+        window.addEventListener('unhandledrejection', (event) => {
+            const reason = event?.reason;
+            const message = reason instanceof Error ? reason.message : String(reason || 'Errore di inizializzazione non gestito.');
+            window.__APP_BOOT_STATE__.errors.push(message);
+            renderBootError(message);
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                if (window.__APP_BOOT_STATE__.booted) {
+                    return;
+                }
+
+                const message = 'Bootstrap non completato. Probabile blocco del modulo ES (spesso causato da apertura diretta file://).';
+                window.__APP_BOOT_STATE__.errors.push(message);
+                renderBootError(message);
+            }, 1600);
+        });
+    </script>
+
 </head>
 <body>
     <div class="container">

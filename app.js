@@ -828,3 +828,7 @@ function handleError({ context, error, fallbackMessage }) {
 
 setUiState(APP_STATES.IDLE);
 verifyRuntimeDependencies();
+
+if (window.__APP_BOOT_STATE__) {
+    window.__APP_BOOT_STATE__.booted = true;
+}

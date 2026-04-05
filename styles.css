@@ -537,3 +537,31 @@ h1 {
   background: var(--color-surface-alt);
   transform: none;
 }
+
+.boot-error-panel {
+    margin: 16px auto;
+    max-width: 800px;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: 12px;
+    padding: 20px;
+    color: #7c2d12;
+    line-height: 1.5;
+}
+
+.boot-error-panel h2 {
+    margin: 0 0 8px;
+    font-size: 1.1rem;
+}
+
+.boot-error-panel ol {
+    padding-left: 20px;
+    margin: 10px 0 0;
+}
+
+.boot-error-panel code {
+    background: #ffedd5;
+    border-radius: 4px;
+    padding: 0 4px;
+    font-size: 0.9em;
+}
