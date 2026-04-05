@@ -324,9 +324,9 @@ function handleFile(file) {
     reader.onload = (e) => {
         try {
             const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
+            const workbook = window.XLSX.read(data, { type: 'array' });
             const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-            const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+            const jsonData = window.XLSX.utils.sheet_to_json(firstSheet);
 
             const preparedData = prepareDataRows(jsonData, {
                 maxProcessableRows: MAX_PROCESSABLE_ROWS,
@@ -681,7 +681,7 @@ downloadAllBtn.addEventListener('click', async () => {
 
     try {
         // Crea un nuovo file ZIP
-        const zip = new JSZip();
+        const zip = new window.JSZip();
 
         // Aggiungi tutti i barcode allo ZIP
         for (const barcode of generatedBarcodes) {
