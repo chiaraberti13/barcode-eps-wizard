@@ -46,6 +46,51 @@ h1 {
     padding: 32px;
 }
 
+.onboarding {
+    margin-bottom: 24px;
+    padding: 16px 18px;
+    border: 1px solid #dbeafe;
+    background: #eff6ff;
+    border-radius: 12px;
+}
+
+.onboarding-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.onboarding h2 {
+    margin: 0;
+    font-size: 1rem;
+    color: #1e3a8a;
+}
+
+.onboarding-step-indicator {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #dbeafe;
+    color: #1d4ed8;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.onboarding-steps {
+    margin: 0;
+    padding-left: 20px;
+    color: #1e293b;
+    display: grid;
+    gap: 8px;
+}
+
+.onboarding-steps li {
+    line-height: 1.5;
+}
+
 .upload-area {
     border: 2px dashed #d4d4d4;
     border-radius: 8px;
@@ -380,6 +425,11 @@ h1 {
 
     .subtitle {
         font-size: 14px;
+    }
+
+    .onboarding-header {
+        flex-direction: column;
+        align-items: flex-start;
     }
 
     .upload-area {
