@@ -233,9 +233,10 @@ Done quando: pipeline automatica attiva e documentata.
 
 ## 5) Sezione Sicurezza (OBBLIGATORIA)
 
-[ ] Implementare validazione stretta di tutti gli input utente  
+[x] Implementare validazione stretta di tutti gli input utente  
 Descrizione: whitelist su estensioni file, colonne, barcode, nomi articolo.  
 Done quando: input non conforme viene bloccato con errore esplicito.
+Nota avanzamento: aggiunta funzione `validateSelectedFile` con whitelist estensioni e limite hard dimensione upload, introdotta validazione stretta di `Codice articolo` (obbligatorio, limite lunghezza, blocco caratteri di controllo) nel flusso di generazione e copertura unit test dedicata in `tests/unit/row-utils.test.mjs`.
 
 [x] Prevenire injection in output EPS (testo barcode/articolo)  
 Descrizione: escaping/sanitizzazione dei caratteri prima della serializzazione PostScript.  

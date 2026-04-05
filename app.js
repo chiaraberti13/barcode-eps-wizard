@@ -1,5 +1,10 @@
 import { generateEPS } from './core/ean13.mjs';
-import { ensureUniqueFilename, normalizeBarcode, sanitizeEpsFilename } from './core/row-utils.mjs';
+import {
+    ensureUniqueFilename,
+    normalizeArticleCode,
+    normalizeBarcode,
+    sanitizeEpsFilename
+} from './core/row-utils.mjs';
 import { buildErrorReportCsv, buildErrorReportJson } from './core/error-report.mjs';
 import { buildProgressFeedback } from './core/progress-feedback.mjs';
 import { prepareDataRows } from './core/data-rows.mjs';
@@ -45,6 +50,7 @@ const SAFE_USER_ERROR_PATTERNS = [
     /^Il file non contiene righe dati\./,
     /^Il file contiene \d+ righe\./,
     /^Colonna obbligatoria mancante:/,
+    /^Riga \d+: codice articolo /,
     /^Riga \d+:/
 ];
 const REQUIRED_COLUMN_LABELS = Object.freeze({
@@ -257,6 +263,24 @@ function getDatasetWarnings(file, rowCount) {
     return warnings;
 }
 
+function validateSelectedFile(file) {
+    if (!file) {
+        throw new Error('Nessun file selezionato.');
+    }
+
+    const fileName = String(file.name || '').trim();
+    const extension = fileName.includes('.') ? fileName.split('.').pop().toLowerCase() : '';
+
+    if (!VALID_FILE_EXTENSIONS.has(extension)) {
+        throw new Error(`Formato file non supportato. ${UPLOAD_INSTRUCTIONS.supportedFormats}`);
+    }
+
+    if (file.size > MAX_UPLOAD_FILE_SIZE_BYTES) {
+        const maxSizeMb = (MAX_UPLOAD_FILE_SIZE_BYTES / (1024 * 1024)).toFixed(0);
+        throw new Error(`File troppo grande. Dimensione massima consentita: ${maxSizeMb}MB.`);
+    }
+}
+
 generateBtn.addEventListener('click', generateBarcodes);
 previewFilterAllBtn.addEventListener('click', () => {
     setPreviewFilter(PREVIEW_FILTERS.ALL);
@@ -293,11 +317,12 @@ async function generateBarcodes() {
     for (let i = 0; i < currentData.length; i++) {
         const item = currentData[i];
         const rowNumber = i + 2;
-        const codiceArticolo = String(item.codiceArticolo || '').trim();
+        let codiceArticolo = String(item.codiceArticolo || '').trim();
         const rawBarcode = item.barcode;
         const previewBarcode = rawBarcode === undefined || rawBarcode === null ? '' : String(rawBarcode).trim();
 
         try {
+            codiceArticolo = normalizeArticleCode(item.codiceArticolo, rowNumber);
             const normalizedBarcode = normalizeBarcode(rawBarcode, rowNumber);
             const epsContent = generateEPS(normalizedBarcode, codiceArticolo);
             const sanitizedFilename = sanitizeEpsFilename(codiceArticolo, rowNumber);
