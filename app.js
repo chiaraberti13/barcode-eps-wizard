@@ -46,6 +46,15 @@ const SAFE_USER_ERROR_PATTERNS = [
     /^Colonna obbligatoria mancante:/,
     /^Riga \d+:/
 ];
+const REQUIRED_COLUMN_LABELS = Object.freeze({
+    codiceArticolo: 'Codice articolo',
+    barcode: 'Barcode'
+});
+const UPLOAD_INSTRUCTIONS = Object.freeze({
+    supportedFormats: 'Formati supportati: .xlsx, .xls, .csv.',
+    expectedColumns: 'Colonne obbligatorie: Codice articolo e Barcode (intestazioni non sensibili a maiuscole/spazi).',
+    correctionHint: 'Correggi il file e ricaricalo per abilitare la generazione.'
+});
 
 const uploadArea = document.getElementById('uploadArea');
 const fileInput = document.getElementById('fileInput');
@@ -173,7 +182,7 @@ function handleFile(file) {
         handleError({
             context: 'FILE_VALIDATION',
             error,
-            fallbackMessage: 'Il file selezionato non è valido. Controlla formato e dimensione e riprova.'
+            fallbackMessage: `Il file selezionato non è valido. ${UPLOAD_INSTRUCTIONS.supportedFormats} ${UPLOAD_INSTRUCTIONS.correctionHint}`
         });
         currentData = [];
         setUiState(APP_STATES.ERROR);
@@ -205,7 +214,7 @@ function handleFile(file) {
             });
             setUiState(APP_STATES.FILE_READY);
 
-            showAlert('success', `File caricato con successo! ${preparedData.length} righe trovate.`);
+            showAlert('success', `File caricato con successo: ${preparedData.length} righe pronte. Controlla l'anteprima e avvia la generazione.`);
             if (datasetWarnings.length > 0) {
                 showAlert('warning', datasetWarnings.join(' '), 9000);
             }
@@ -213,7 +222,7 @@ function handleFile(file) {
             handleError({
                 context: 'FILE_READ',
                 error,
-                fallbackMessage: 'Impossibile leggere il file. Verifica che contenga un foglio valido con le colonne richieste.'
+                fallbackMessage: `Impossibile leggere il file. ${UPLOAD_INSTRUCTIONS.supportedFormats} ${UPLOAD_INSTRUCTIONS.expectedColumns}`
             });
             currentData = [];
             setUiState(APP_STATES.ERROR);
@@ -413,12 +422,12 @@ function validateSelectedFile(file) {
 
     const extension = getFileExtension(file.name);
     if (!VALID_FILE_EXTENSIONS.has(extension)) {
-        throw new Error('Formato file non supportato. Carica solo file .xlsx, .xls o .csv.');
+        throw new Error(`Formato file non supportato. ${UPLOAD_INSTRUCTIONS.supportedFormats} Esporta il file in uno dei formati indicati e riprova.`);
     }
 
     if (file.size > MAX_UPLOAD_FILE_SIZE_BYTES) {
         const maxSizeMb = Math.round(MAX_UPLOAD_FILE_SIZE_BYTES / (1024 * 1024));
-        throw new Error(`File troppo grande. Dimensione massima consentita: ${maxSizeMb}MB.`);
+        throw new Error(`File troppo grande. Dimensione massima consentita: ${maxSizeMb}MB. Riduci il file (meno colonne/righe) oppure dividilo in più lotti.`);
     }
 }
 
@@ -438,7 +447,8 @@ function resolveRequiredColumns(headers) {
         const matchedNormalizedName = acceptedNames.find((candidate) => normalizedHeaders.has(candidate));
 
         if (!matchedNormalizedName) {
-            throw new Error(`Colonna obbligatoria mancante: ${field === 'codiceArticolo' ? 'Codice articolo' : 'Barcode'}.`);
+            const requiredLabel = REQUIRED_COLUMN_LABELS[field];
+            throw new Error(`Colonna obbligatoria mancante: ${requiredLabel}. ${UPLOAD_INSTRUCTIONS.expectedColumns} ${UPLOAD_INSTRUCTIONS.correctionHint}`);
         }
 
         resolvedColumns[field] = normalizedHeaders.get(matchedNormalizedName);
@@ -449,11 +459,11 @@ function resolveRequiredColumns(headers) {
 
 function prepareDataRows(jsonData) {
     if (!Array.isArray(jsonData) || jsonData.length === 0) {
-        throw new Error('Il file non contiene righe dati.');
+        throw new Error(`Il file non contiene righe dati. Inserisci almeno una riga con ${UPLOAD_INSTRUCTIONS.expectedColumns.toLowerCase()}`);
     }
 
     if (jsonData.length > MAX_PROCESSABLE_ROWS) {
-        throw new Error(`Il file contiene ${jsonData.length} righe. Limite massimo supportato: ${MAX_PROCESSABLE_ROWS}.`);
+        throw new Error(`Il file contiene ${jsonData.length} righe. Limite massimo supportato: ${MAX_PROCESSABLE_ROWS}. Suddividi il dataset in più file per evitare blocchi del browser.`);
     }
 
     const headers = Object.keys(jsonData[0] || {});
