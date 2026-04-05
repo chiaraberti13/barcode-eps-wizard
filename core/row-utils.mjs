@@ -2,6 +2,8 @@ import { normalizeEAN13Input } from './ean13.mjs';
 
 const EXCEL_DECIMAL_SUFFIX_REGEX = /^\d+\.0$/;
 const INVALID_FILENAME_CHARS_REGEX = /[<>:"/\\|?*\u0000-\u001f]/g;
+const CONTROL_CHARS_REGEX = /[\u0000-\u001f\u007f]/;
+const MAX_ARTICLE_CODE_LENGTH = 180;
 const WINDOWS_RESERVED_NAMES = new Set([
   'CON', 'PRN', 'AUX', 'NUL',
   'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9',
@@ -33,6 +35,24 @@ export function normalizeBarcode(rawBarcode, rowNumber) {
     const message = error instanceof Error ? error.message : 'barcode non valido.';
     throw new Error(`Riga ${rowNumber}: ${message}`);
   }
+}
+
+export function normalizeArticleCode(rawArticleCode, rowNumber) {
+  const normalizedArticleCode = String(rawArticleCode ?? '').trim();
+
+  if (!normalizedArticleCode) {
+    throw new Error(`Riga ${rowNumber}: codice articolo mancante.`);
+  }
+
+  if (normalizedArticleCode.length > MAX_ARTICLE_CODE_LENGTH) {
+    throw new Error(`Riga ${rowNumber}: codice articolo troppo lungo (max ${MAX_ARTICLE_CODE_LENGTH} caratteri).`);
+  }
+
+  if (CONTROL_CHARS_REGEX.test(normalizedArticleCode)) {
+    throw new Error(`Riga ${rowNumber}: codice articolo contiene caratteri non consentiti.`);
+  }
+
+  return normalizedArticleCode;
 }
 
 export function sanitizeEpsFilename(codiceArticolo, rowNumber) {

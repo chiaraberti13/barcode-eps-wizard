@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 
 import {
   ensureUniqueFilename,
+  normalizeArticleCode,
   normalizeBarcode,
   sanitizeEpsFilename
 } from '../../core/row-utils.mjs';
@@ -19,6 +20,20 @@ test('normalizeBarcode rifiuta valori non numerici', () => {
   assert.throws(
     () => normalizeBarcode('59012AB12345', 4),
     /Riga 4: barcode non valido/
+  );
+});
+
+test('normalizeArticleCode rifiuta codice articolo mancante', () => {
+  assert.throws(
+    () => normalizeArticleCode('   ', 5),
+    /Riga 5: codice articolo mancante\./
+  );
+});
+
+test('normalizeArticleCode rifiuta caratteri di controllo', () => {
+  assert.throws(
+    () => normalizeArticleCode('ART\u0007-01', 6),
+    /Riga 6: codice articolo contiene caratteri non consentiti\./
   );
 });
 
