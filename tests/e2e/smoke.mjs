@@ -16,5 +16,10 @@ assert.match(html, /Header richiesti: Codice articolo, Barcode/, "Manca l'istruz
 assert.match(html, /id="onboardingPanel"/, 'Manca il pannello onboarding in-page.');
 assert.match(html, /id="onboardingCurrentStep"/, "Manca l'indicatore del passo corrente onboarding.");
 assert.match(html, /Guida rapida/, 'Manca il titolo onboarding "Guida rapida".');
+assert.match(html, /id="statusLog"/, 'Manca il feedback persistente post-azione.');
+assert.match(html, /role="button" tabindex="0"/, 'Upload area non accessibile via tastiera.');
+assert.match(html, /id="errorAlert"[^>]*role="alert"/, 'Manca role alert per errori critici screen reader.');
+assert.match(html, /integrity=/, 'Manca il pinning SRI delle dipendenze CDN.');
+assert.match(html, /vendor\/xlsx\.full\.min\.js/, 'Manca fallback locale SheetJS.');
 
 console.log('E2E smoke OK: struttura UI minima presente.');

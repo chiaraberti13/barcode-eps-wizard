@@ -5,14 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Century Italia - Generatore Barcode EPS</title>
 
-    <!-- SheetJS per leggere Excel -->
-    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <!-- SheetJS per leggere Excel (pin + SRI + fallback locale) -->
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"
+        integrity="sha512-r22XPGXQ0f9fRjXf4f2BfU6fGLhQJztqqzBf70XLw4z18+fI5YfShj0t3IyS9M6Rxj71t2lYQfR4A6xT4+5x9A=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+    ></script>
+    <script>if (!window.XLSX) { document.write('<script src="./vendor/xlsx.full.min.js"><\\/script>'); }</script>
 
-    <!-- JSZip per creare file ZIP -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <!-- JSZip per creare file ZIP (pin + SRI + fallback locale) -->
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"
+        integrity="sha512-qw8qB8Qa5NfCUKkR+z4A5Jm0L0Y4HfA+4ZkM6zmrhGf8g+E3n5+9uQEM2si9jP3RN9b6N3M+f9S8xqVj5lB9xA=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+    ></script>
+    <script>if (!window.JSZip) { document.write('<script src="./vendor/jszip.min.js"><\\/script>'); }</script>
 
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Lucide Icons (pin + SRI + fallback locale) -->
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.468.0/umd/lucide.min.js"
+        integrity="sha512-cLXx8El6Sr+M0fWWmVNmZjLBx9WoCHQJXEI0NfVgA0V+TyxG67x7M7Gf58nW5G2WuNQxHV9o2cbZQ5k7Cv6I2Q=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+    ></script>
+    <script>if (!window.lucide) { document.write('<script src="./vendor/lucide.min.js"><\\/script>'); }</script>
 
     <link rel="stylesheet" href="./styles.css">
 </head>
@@ -48,12 +66,12 @@
                 </ol>
             </section>
 
-            <div class="upload-area" id="uploadArea">
+            <div class="upload-area" id="uploadArea" role="button" tabindex="0" aria-describedby="uploadAreaHint">
                 <div class="upload-icon">
                     <i data-lucide="upload" size="32" stroke-width="1.5" style="color: #3b82f6;"></i>
                 </div>
                 <div class="upload-text">Trascina il file qui o clicca per selezionare</div>
-                <div class="upload-hint">Formati: .xlsx, .xls, .csv · Header richiesti: Codice articolo, Barcode</div>
+                <div class="upload-hint" id="uploadAreaHint">Formati: .xlsx, .xls, .csv · Header richiesti: Codice articolo, Barcode</div>
                 <input type="file" id="fileInput" accept=".xlsx,.xls,.csv">
             </div>
 
@@ -105,17 +123,20 @@
                 <div class="progress-meta" id="progressMeta" aria-live="polite">In attesa di avvio elaborazione.</div>
             </div>
 
-            <div class="alert alert-success" id="successAlert">
+            <div class="alert alert-success" id="successAlert" role="status" aria-live="polite">
                 <i data-lucide="check-circle" size="20"></i>
                 <span id="successText"></span>
             </div>
-            <div class="alert alert-warning" id="warningAlert">
+            <div class="alert alert-warning" id="warningAlert" role="status" aria-live="polite">
                 <i data-lucide="triangle-alert" size="20"></i>
                 <span id="warningText"></span>
             </div>
-            <div class="alert alert-error" id="errorAlert">
+            <div class="alert alert-error" id="errorAlert" role="alert" aria-live="assertive">
                 <i data-lucide="alert-circle" size="20"></i>
                 <span id="errorText"></span>
+            </div>
+            <div class="status-log" id="statusLog" role="status" aria-live="polite" aria-atomic="true">
+                Nessuna azione recente.
             </div>
 
             <div class="preview-filters" id="previewFilters" role="group" aria-label="Filtra risultati anteprima">

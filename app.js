@@ -43,6 +43,8 @@ const MAX_UPLOAD_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 const SOFT_UPLOAD_FILE_SIZE_BYTES = 3 * 1024 * 1024;
 const MAX_PROCESSABLE_ROWS = 5000;
 const SOFT_PROCESSABLE_ROWS = 3000;
+const GENERATION_CHUNK_SIZE = 25;
+const GENERATION_CHUNK_DELAY_MS = 8;
 const SAFE_USER_ERROR_PATTERNS = [
     /^Nessun file selezionato\./,
     /^Formato file non supportato\./,
@@ -96,6 +98,7 @@ const preview = document.getElementById('preview');
 const successAlert = document.getElementById('successAlert');
 const warningAlert = document.getElementById('warningAlert');
 const errorAlert = document.getElementById('errorAlert');
+const statusLog = document.getElementById('statusLog');
 
 function toggleElementDisplay(element, shouldShow, displayMode = 'block') {
     element.style.display = shouldShow ? displayMode : 'none';
@@ -189,6 +192,12 @@ function updateOnboardingStep(appState) {
 
 // Upload area events
 uploadArea.addEventListener('click', () => fileInput.click());
+uploadArea.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        fileInput.click();
+    }
+});
 
 uploadArea.addEventListener('dragover', (e) => {
     e.preventDefault();
@@ -342,6 +351,7 @@ async function generateBarcodes() {
     let successCount = 0;
     let errorCount = 0;
     const filenameCounters = new Map();
+    let pendingPreviewRender = false;
 
     for (let i = 0; i < currentData.length; i++) {
         const item = currentData[i];
@@ -365,7 +375,7 @@ async function generateBarcodes() {
                 codiceBarcode: normalizedBarcode
             });
 
-            addPreviewEntry({
+            previewEntries.push({
                 codiceArticolo,
                 codiceBarcode: normalizedBarcode,
                 success: true,
@@ -374,7 +384,7 @@ async function generateBarcodes() {
             });
             successCount++;
         } catch (error) {
-            addPreviewEntry({
+            previewEntries.push({
                 codiceArticolo,
                 codiceBarcode: previewBarcode,
                 success: false,
@@ -400,23 +410,27 @@ async function generateBarcodes() {
         document.getElementById('successCount').textContent = successCount;
         document.getElementById('errorCount').textContent = errorCount;
 
+        if (!pendingPreviewRender && (i % GENERATION_CHUNK_SIZE === 0 || i === currentData.length - 1)) {
+            pendingPreviewRender = true;
+            requestAnimationFrame(() => {
+                renderPreview();
+                pendingPreviewRender = false;
+            });
+        }
+
         // Piccola pausa per non bloccare l'UI
-        if (i % 10 === 0) {
-            await new Promise(resolve => setTimeout(resolve, 10));
+        if (i % GENERATION_CHUNK_SIZE === 0) {
+            await new Promise(resolve => setTimeout(resolve, GENERATION_CHUNK_DELAY_MS));
         }
     }
 
+    renderPreview();
     setUiState(APP_STATES.COMPLETED);
     showAlert('success', `Generazione completata! ${successCount} barcode generati con successo.`);
 }
 
 function setPreviewFilter(nextFilter) {
     currentPreviewFilter = normalizePreviewFilter(nextFilter);
-    renderPreview();
-}
-
-function addPreviewEntry(entry) {
-    previewEntries.push(entry);
     renderPreview();
 }
 
@@ -667,6 +681,9 @@ function showAlert(type, message, durationMs = 5000) {
     const { alert, textElement } = selectedConfig;
     textElement.textContent = message;
     alert.style.display = 'flex';
+    if (statusLog) {
+        statusLog.textContent = message;
+    }
 
     // Re-render icons
     lucide.createIcons();
