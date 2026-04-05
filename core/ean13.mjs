@@ -125,7 +125,7 @@ export function generateEPS(codiceBarcode, codiceArticolo = '') {
   const totalHeight = barHeight + textHeight + 6.0;
 
   let eps = `%!PS-Adobe-3.0 EPSF-3.0
-%%Creator: Century Italia Barcode Generator
+%%Creator: Barcode EPS Wizard
 %%Title: ${safeTitle}
 %%Subject: ${safeSubject}
 %%Pages: 0

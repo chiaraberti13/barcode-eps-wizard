@@ -15,9 +15,39 @@ import {
     normalizePreviewFilter
 } from './core/preview-filter.mjs';
 
+const RUNTIME_DEPENDENCIES = Object.freeze({
+    xlsx: 'SheetJS (XLSX)',
+    jszip: 'JSZip',
+    lucide: 'Lucide Icons'
+});
+
+function getMissingRuntimeDependencies() {
+    const missing = [];
+
+    if (!window.XLSX) {
+        missing.push(RUNTIME_DEPENDENCIES.xlsx);
+    }
+
+    if (!window.JSZip) {
+        missing.push(RUNTIME_DEPENDENCIES.jszip);
+    }
+
+    if (!window.lucide || typeof window.lucide.createIcons !== 'function') {
+        missing.push(RUNTIME_DEPENDENCIES.lucide);
+    }
+
+    return missing;
+}
+
+function safeCreateIcons() {
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+    }
+}
+
 // Inizializza le icone Lucide
 document.addEventListener('DOMContentLoaded', () => {
-    lucide.createIcons();
+    safeCreateIcons();
 });
 
 let currentData = [];
@@ -99,6 +129,35 @@ const successAlert = document.getElementById('successAlert');
 const warningAlert = document.getElementById('warningAlert');
 const errorAlert = document.getElementById('errorAlert');
 const statusLog = document.getElementById('statusLog');
+
+function setUploadInteractivity(isEnabled) {
+    uploadArea.classList.toggle('is-disabled', !isEnabled);
+    uploadArea.setAttribute('aria-disabled', String(!isEnabled));
+    uploadArea.tabIndex = isEnabled ? 0 : -1;
+}
+
+function isUploadInteractive() {
+    return uploadArea.getAttribute('aria-disabled') !== 'true';
+}
+
+function verifyRuntimeDependencies() {
+    const missingDependencies = getMissingRuntimeDependencies();
+
+    if (missingDependencies.length === 0) {
+        setUploadInteractivity(true);
+        return true;
+    }
+
+    setUploadInteractivity(false);
+    const dependencyList = missingDependencies.join(', ');
+    handleError({
+        context: 'DEPENDENCIES',
+        error: new Error(`Dipendenze non disponibili: ${dependencyList}`),
+        fallbackMessage: `Impossibile avviare tutte le funzioni: librerie mancanti (${dependencyList}). Verifica connessione CDN o aggiungi i fallback locali in /vendor.`
+    });
+
+    return false;
+}
 
 function toggleElementDisplay(element, shouldShow, displayMode = 'block') {
     element.style.display = shouldShow ? displayMode : 'none';
@@ -191,8 +250,18 @@ function updateOnboardingStep(appState) {
 }
 
 // Upload area events
-uploadArea.addEventListener('click', () => fileInput.click());
+uploadArea.addEventListener('click', () => {
+    if (!isUploadInteractive()) {
+        return;
+    }
+
+    fileInput.click();
+});
 uploadArea.addEventListener('keydown', (event) => {
+    if (!isUploadInteractive()) {
+        return;
+    }
+
     if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
         fileInput.click();
@@ -200,6 +269,10 @@ uploadArea.addEventListener('keydown', (event) => {
 });
 
 uploadArea.addEventListener('dragover', (e) => {
+    if (!isUploadInteractive()) {
+        return;
+    }
+
     e.preventDefault();
     uploadArea.classList.add('dragover');
 });
@@ -209,6 +282,10 @@ uploadArea.addEventListener('dragleave', () => {
 });
 
 uploadArea.addEventListener('drop', (e) => {
+    if (!isUploadInteractive()) {
+        return;
+    }
+
     e.preventDefault();
     uploadArea.classList.remove('dragover');
     const file = e.dataTransfer.files[0];
@@ -216,11 +293,19 @@ uploadArea.addEventListener('drop', (e) => {
 });
 
 fileInput.addEventListener('change', (e) => {
+    if (!isUploadInteractive()) {
+        return;
+    }
+
     const file = e.target.files[0];
     if (file) handleFile(file);
 });
 
 function handleFile(file) {
+    if (!verifyRuntimeDependencies()) {
+        return;
+    }
+
     try {
         validateSelectedFile(file);
     } catch (error) {
@@ -331,6 +416,10 @@ previewFilterErrorBtn.addEventListener('click', () => {
 });
 
 async function generateBarcodes() {
+    if (!verifyRuntimeDependencies()) {
+        return;
+    }
+
     if (currentData.length === 0) return;
 
     generationStartedAt = Date.now();
@@ -446,7 +535,7 @@ function renderPreview() {
     updatePreviewFilterCounts();
     updatePreviewFilterButtons();
     renderPreviewEmptyState();
-    lucide.createIcons();
+    safeCreateIcons();
 }
 
 function setPreviewEmptyStateMessage(message) {
@@ -579,6 +668,15 @@ function downloadFile(filename, content, mimeType = 'application/postscript') {
 }
 
 downloadAllBtn.addEventListener('click', async () => {
+    if (!window.JSZip) {
+        handleError({
+            context: 'ZIP_DEPENDENCY',
+            error: new Error('JSZip non disponibile.'),
+            fallbackMessage: 'Impossibile creare il file ZIP: libreria JSZip non disponibile.'
+        });
+        return;
+    }
+
     showAlert('success', 'Creazione file ZIP in corso...');
 
     try {
@@ -661,6 +759,7 @@ function resetSession() {
 
     showAlert('success', 'Sessione resettata. Carica un nuovo file per iniziare.');
     setUiState(APP_STATES.IDLE);
+    verifyRuntimeDependencies();
     updatePreviewFilterCounts();
     updatePreviewFilterButtons();
 }
@@ -686,7 +785,7 @@ function showAlert(type, message, durationMs = 5000) {
     }
 
     // Re-render icons
-    lucide.createIcons();
+    safeCreateIcons();
 
     setTimeout(() => {
         alert.style.display = 'none';
@@ -728,3 +827,4 @@ function handleError({ context, error, fallbackMessage }) {
 }
 
 setUiState(APP_STATES.IDLE);
+verifyRuntimeDependencies();

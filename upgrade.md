@@ -357,3 +357,5 @@ Nota avanzamento: refactor completo di `addPreviewItem` con creazione nodi DOM s
 - [x] Possibile injection HTML/JS in preview/download: `codiceArticolo` viene interpolato in `innerHTML` e in `onclick` inline senza escaping (corretto con rendering DOM sicuro e listener non inline, senza interpolazione HTML).
 
 - [x] Errore runtime pre-esistente: funzioni `normalizeBarcode`/`sanitizeEpsFilename` richiamate ma non definite in `app.js` (risolto con estrazione utilità condivise in `core/row-utils.mjs` e import espliciti nella UI).
+
+- [x] UX failure pre-esistente su upload: in caso di librerie CDN/fallback non disponibili il flusso Excel falliva senza messaggio operativo chiaro (aggiunta verifica runtime dipendenze, blocco interazione upload quando mancano librerie e messaggio guidato su recovery via CDN/fallback locali).

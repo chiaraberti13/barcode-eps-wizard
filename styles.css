@@ -525,3 +525,15 @@ h1 {
 .preview::-webkit-scrollbar-thumb:hover {
     background: #a3a3a3;
 }
+
+
+.upload-area.is-disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.upload-area.is-disabled:hover {
+  border-color: var(--color-border);
+  background: var(--color-surface-alt);
+  transform: none;
+}
