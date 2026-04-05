@@ -164,9 +164,10 @@ Descrizione: mostrare tempo stimato, item corrente, stato completo.
 Done quando: utente capisce sempre “cosa sta succedendo”.
 Nota avanzamento: esteso il blocco progress con dettaglio contestuale (`Elemento X di Y` + codice articolo corrente) e stima ETA dinamica durante la generazione; introdotto modulo puro `core/progress-feedback.mjs` con test unitari dedicati e aggiornato smoke test UI per garantire presenza del nuovo indicatore.
 
-[ ] Ottimizzare microcopy errori e istruzioni upload  
+[x] Ottimizzare microcopy errori e istruzioni upload  
 Descrizione: messaggi orientati all’azione (causa + correzione).  
 Done quando: ogni errore indica esattamente come risolvere.
+Nota avanzamento: introdotte istruzioni upload più esplicite in header/dropzone e microcopy errori action-oriented (causa + correzione) per formato non supportato, file troppo grande, righe assenti, colonne mancanti e limiti dataset; aggiornato anche il messaggio di successo post-upload per guidare il passo successivo.
 
 [ ] Verificare responsive reale su breakpoint mobile/tablet/desktop  
 Descrizione: controllare usabilità concreta, non solo adattamento layout.  
