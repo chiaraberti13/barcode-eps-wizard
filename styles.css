@@ -171,6 +171,13 @@ h1 {
     text-align: center;
 }
 
+.progress-meta {
+    margin-top: 6px;
+    font-size: 12px;
+    color: #525252;
+    text-align: center;
+}
+
 .stats {
     display: none;
     margin-top: 24px;

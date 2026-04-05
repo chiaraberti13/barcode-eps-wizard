@@ -1,6 +1,7 @@
 import { generateEPS } from './core/ean13.mjs';
 import { ensureUniqueFilename, normalizeBarcode, sanitizeEpsFilename } from './core/row-utils.mjs';
 import { buildErrorReportCsv, buildErrorReportJson } from './core/error-report.mjs';
+import { buildProgressFeedback } from './core/progress-feedback.mjs';
 import {
     PREVIEW_FILTERS,
     getFilteredPreviewEntries,
@@ -19,6 +20,7 @@ let generationErrors = [];
 let previewEntries = [];
 let barcodeSequence = 0;
 let currentPreviewFilter = PREVIEW_FILTERS.ALL;
+let generationStartedAt = 0;
 const APP_STATES = Object.freeze({
     IDLE: 'idle',
     FILE_READY: 'file_ready',
@@ -62,6 +64,7 @@ const previewFilterErrorCount = document.getElementById('previewFilterErrorCount
 const progressContainer = document.getElementById('progressContainer');
 const progressFill = document.getElementById('progressFill');
 const progressText = document.getElementById('progressText');
+const progressMeta = document.getElementById('progressMeta');
 const stats = document.getElementById('stats');
 const preview = document.getElementById('preview');
 const successAlert = document.getElementById('successAlert');
@@ -194,8 +197,12 @@ function handleFile(file) {
             document.getElementById('successCount').textContent = 0;
             document.getElementById('errorCount').textContent = 0;
             preview.innerHTML = '';
-            progressFill.style.width = '0%';
-            progressText.textContent = `0 / ${preparedData.length}`;
+            updateProgressUi({
+                currentIndex: 0,
+                totalItems: preparedData.length,
+                currentArticleCode: '',
+                startedAt: Date.now()
+            });
             setUiState(APP_STATES.FILE_READY);
 
             showAlert('success', `File caricato con successo! ${preparedData.length} righe trovate.`);
@@ -249,14 +256,19 @@ previewFilterErrorBtn.addEventListener('click', () => {
 async function generateBarcodes() {
     if (currentData.length === 0) return;
 
+    generationStartedAt = Date.now();
     generatedBarcodes = [];
     generationErrors = [];
     previewEntries = [];
     barcodeSequence = 0;
     currentPreviewFilter = PREVIEW_FILTERS.ALL;
     preview.innerHTML = '';
-    progressFill.style.width = '0%';
-    progressText.textContent = `0 / ${currentData.length}`;
+    updateProgressUi({
+        currentIndex: 0,
+        totalItems: currentData.length,
+        currentArticleCode: '',
+        startedAt: generationStartedAt
+    });
     setUiState(APP_STATES.GENERATING);
 
     let successCount = 0;
@@ -309,9 +321,12 @@ async function generateBarcodes() {
             errorCount++;
         }
 
-        const progress = ((i + 1) / currentData.length) * 100;
-        progressFill.style.width = progress + '%';
-        progressText.textContent = `${i + 1} / ${currentData.length}`;
+        updateProgressUi({
+            currentIndex: i + 1,
+            totalItems: currentData.length,
+            currentArticleCode: codiceArticolo,
+            startedAt: generationStartedAt
+        });
 
         document.getElementById('successCount').textContent = successCount;
         document.getElementById('errorCount').textContent = errorCount;
@@ -603,8 +618,12 @@ function resetSession() {
     document.getElementById('errorCount').textContent = 0;
 
     preview.innerHTML = '';
-    progressFill.style.width = '0%';
-    progressText.textContent = '0 / 0';
+    updateProgressUi({
+        currentIndex: 0,
+        totalItems: 0,
+        currentArticleCode: '',
+        startedAt: Date.now()
+    });
 
     showAlert('success', 'Sessione resettata. Carica un nuovo file per iniziare.');
     setUiState(APP_STATES.IDLE);
@@ -635,6 +654,19 @@ function showAlert(type, message, durationMs = 5000) {
     setTimeout(() => {
         alert.style.display = 'none';
     }, durationMs);
+}
+
+function updateProgressUi({ currentIndex, totalItems, currentArticleCode, startedAt }) {
+    const progressFeedback = buildProgressFeedback({
+        currentIndex,
+        totalItems,
+        currentArticleCode,
+        startedAt
+    });
+
+    progressFill.style.width = `${progressFeedback.percentage}%`;
+    progressText.textContent = progressFeedback.completedLabel;
+    progressMeta.textContent = `${progressFeedback.detailLabel} · ${progressFeedback.etaLabel}`;
 }
 
 function isSafeUserErrorMessage(message) {

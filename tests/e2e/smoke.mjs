@@ -10,5 +10,6 @@ assert.match(html, /id="resetSessionBtn"/, 'Manca il bottone di reset sessione.'
 assert.match(html, /id="previewFilterAllBtn"/, 'Manca il filtro preview "Tutti".');
 assert.match(html, /id="previewFilterSuccessBtn"/, 'Manca il filtro preview "Successi".');
 assert.match(html, /id="previewFilterErrorBtn"/, 'Manca il filtro preview "Errori".');
+assert.match(html, /id="progressMeta"/, 'Manca il dettaglio progressivo con ETA.');
 
 console.log('E2E smoke OK: struttura UI minima presente.');
