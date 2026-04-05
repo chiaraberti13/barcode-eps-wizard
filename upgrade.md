@@ -159,9 +159,10 @@ Descrizione: mappare task reali e punti di frizione.
 Done quando: flussi documentati con step e decision point.
 Nota avanzamento: aggiunto `docs/user-journeys.md` con i tre percorsi chiave, decision point, frizioni UX e requisiti operativi derivati per guidare i task successivi di microcopy e feedback progressivo.
 
-[ ] Aggiungere feedback progressivo più informativo  
+[x] Aggiungere feedback progressivo più informativo  
 Descrizione: mostrare tempo stimato, item corrente, stato completo.  
 Done quando: utente capisce sempre “cosa sta succedendo”.
+Nota avanzamento: esteso il blocco progress con dettaglio contestuale (`Elemento X di Y` + codice articolo corrente) e stima ETA dinamica durante la generazione; introdotto modulo puro `core/progress-feedback.mjs` con test unitari dedicati e aggiornato smoke test UI per garantire presenza del nuovo indicatore.
 
 [ ] Ottimizzare microcopy errori e istruzioni upload  
 Descrizione: messaggi orientati all’azione (causa + correzione).  
