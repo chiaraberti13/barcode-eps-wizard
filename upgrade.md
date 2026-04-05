@@ -215,9 +215,10 @@ Descrizione: allineare package description e quick-start ai file presenti.
 Done quando: un utente nuovo segue README senza ambiguità.
 Nota avanzamento: aggiornato elenco file pacchetto e note dipendenze CDN per coerenza con repository e comportamento reale.
 
-[ ] Aggiungere documentazione tecnica interna (architettura + decisioni)  
+[x] Aggiungere documentazione tecnica interna (architettura + decisioni)  
 Descrizione: facilitare onboarding di nuovi sviluppatori/agenti.  
 Done quando: esiste documento con moduli, flussi e responsabilità.
+Nota avanzamento: aggiunto `docs/architecture.md` con panoramica architetturale, responsabilità dei moduli (`app.js` + `core/*`), flussi end-to-end, decisioni tecniche, convenzioni operative per contributori e checklist di debug rapido.
 
 [ ] Aggiungere changelog e policy versioning  
 Descrizione: tracciare evoluzione funzionale e fix.  
