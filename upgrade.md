@@ -270,9 +270,10 @@ Done quando: profilo header documentato e verificato in ambiente di test.
 
 ## 6) Sezione UX (OBBLIGATORIA)
 
-[ ] Progettare onboarding in-page (istruzioni minime contestuali)  
+[x] Progettare onboarding in-page (istruzioni minime contestuali)  
 Descrizione: guidare utente alla prima esecuzione senza leggere manuale lungo.  
 Done quando: flow “upload → genera → scarica” è autoesplicativo.
+Nota avanzamento: aggiunto pannello `Guida rapida` in-page con 3 passi operativi (carica, genera, scarica) e indicatore dinamico del passo corrente sincronizzato con la state machine UI (`idle`, `file_ready`, `generating`, `completed`, `error`) per ridurre frizione al primo utilizzo.
 
 [x] Introdurre stati vuoti e stati errore dedicati  
 Descrizione: evitare UI “silenziosa” quando non ci sono risultati o ci sono fallimenti totali.  

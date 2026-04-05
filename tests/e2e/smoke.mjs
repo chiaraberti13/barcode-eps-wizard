@@ -13,5 +13,8 @@ assert.match(html, /id="previewFilterErrorBtn"/, 'Manca il filtro preview "Error
 assert.match(html, /id="previewEmptyState"/, 'Manca lo stato vuoto dedicato della preview.');
 assert.match(html, /id="progressMeta"/, 'Manca il dettaglio progressivo con ETA.');
 assert.match(html, /Header richiesti: Codice articolo, Barcode/, "Manca l'istruzione upload sui campi obbligatori.");
+assert.match(html, /id="onboardingPanel"/, 'Manca il pannello onboarding in-page.');
+assert.match(html, /id="onboardingCurrentStep"/, "Manca l'indicatore del passo corrente onboarding.");
+assert.match(html, /Guida rapida/, 'Manca il titolo onboarding "Guida rapida".');
 
 console.log('E2E smoke OK: struttura UI minima presente.');

@@ -62,9 +62,17 @@ const UPLOAD_INSTRUCTIONS = Object.freeze({
     expectedColumns: 'Colonne obbligatorie: Codice articolo e Barcode (intestazioni non sensibili a maiuscole/spazi).',
     correctionHint: 'Correggi il file e ricaricalo per abilitare la generazione.'
 });
+const ONBOARDING_STEP_TEXT = Object.freeze({
+    [APP_STATES.IDLE]: 'Passo corrente: 1 di 3 — Carica file',
+    [APP_STATES.FILE_READY]: 'Passo corrente: 2 di 3 — Avvia generazione',
+    [APP_STATES.GENERATING]: 'Passo corrente: 2 di 3 — Generazione in corso',
+    [APP_STATES.COMPLETED]: 'Passo corrente: 3 di 3 — Scarica risultati',
+    [APP_STATES.ERROR]: 'Passo corrente: attenzione — Correggi file e riprova'
+});
 
 const uploadArea = document.getElementById('uploadArea');
 const fileInput = document.getElementById('fileInput');
+const onboardingCurrentStep = document.getElementById('onboardingCurrentStep');
 const generateBtn = document.getElementById('generateBtn');
 const downloadAllBtn = document.getElementById('downloadAllBtn');
 const downloadErrorsCsvBtn = document.getElementById('downloadErrorsCsvBtn');
@@ -169,6 +177,14 @@ function setUiState(nextState) {
     }
 
     renderPreviewEmptyState(nextState);
+    updateOnboardingStep(nextState);
+}
+
+function updateOnboardingStep(appState) {
+    if (!onboardingCurrentStep) {
+        return;
+    }
+    onboardingCurrentStep.textContent = ONBOARDING_STEP_TEXT[appState] ?? ONBOARDING_STEP_TEXT[APP_STATES.IDLE];
 }
 
 // Upload area events

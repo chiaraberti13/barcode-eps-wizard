@@ -27,6 +27,27 @@
         </div>
 
         <div class="content">
+            <section class="onboarding" id="onboardingPanel" aria-labelledby="onboardingTitle">
+                <div class="onboarding-header">
+                    <h2 id="onboardingTitle">Guida rapida</h2>
+                    <span class="onboarding-step-indicator" id="onboardingCurrentStep">Passo corrente: 1 di 3 — Carica file</span>
+                </div>
+                <ol class="onboarding-steps">
+                    <li id="onboardingStepUpload">
+                        <strong>1. Carica il file.</strong>
+                        Verifica che il file includa le colonne obbligatorie <em>Codice articolo</em> e <em>Barcode</em>.
+                    </li>
+                    <li id="onboardingStepGenerate">
+                        <strong>2. Genera i barcode EPS.</strong>
+                        Avvia la lavorazione e monitora progressione, ETA e righe con errore.
+                    </li>
+                    <li id="onboardingStepDownload">
+                        <strong>3. Scarica i risultati.</strong>
+                        Esporta i file validi in ZIP e, se necessario, il report errori CSV/JSON.
+                    </li>
+                </ol>
+            </section>
+
             <div class="upload-area" id="uploadArea">
                 <div class="upload-icon">
                     <i data-lucide="upload" size="32" stroke-width="1.5" style="color: #3b82f6;"></i>
