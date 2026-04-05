@@ -77,6 +77,8 @@ const previewFilterErrorBtn = document.getElementById('previewFilterErrorBtn');
 const previewFilterAllCount = document.getElementById('previewFilterAllCount');
 const previewFilterSuccessCount = document.getElementById('previewFilterSuccessCount');
 const previewFilterErrorCount = document.getElementById('previewFilterErrorCount');
+const previewEmptyState = document.getElementById('previewEmptyState');
+const previewEmptyStateText = document.getElementById('previewEmptyStateText');
 const progressContainer = document.getElementById('progressContainer');
 const progressFill = document.getElementById('progressFill');
 const progressText = document.getElementById('progressText');
@@ -108,6 +110,7 @@ function setUiState(nextState) {
         toggleElementDisplay(downloadErrorsJsonBtn, false);
         toggleElementDisplay(resetSessionBtn, false);
         generateBtn.disabled = true;
+        setPreviewEmptyStateMessage('Carica un file per vedere i risultati della generazione.');
         break;
     case APP_STATES.FILE_READY:
         toggleElementDisplay(stats, true, 'block');
@@ -119,6 +122,7 @@ function setUiState(nextState) {
         toggleElementDisplay(downloadErrorsJsonBtn, false);
         toggleElementDisplay(resetSessionBtn, true, 'inline-flex');
         generateBtn.disabled = !hasRows;
+        setPreviewEmptyStateMessage('File pronto. Premi “Genera Barcode EPS” per avviare la lavorazione.');
         break;
     case APP_STATES.GENERATING:
         toggleElementDisplay(stats, true, 'block');
@@ -130,6 +134,7 @@ function setUiState(nextState) {
         toggleElementDisplay(downloadErrorsJsonBtn, false);
         toggleElementDisplay(resetSessionBtn, true, 'inline-flex');
         generateBtn.disabled = true;
+        setPreviewEmptyStateMessage('Generazione in corso: i risultati appariranno in questa sezione.');
         break;
     case APP_STATES.COMPLETED:
         toggleElementDisplay(stats, true, 'block');
@@ -141,6 +146,11 @@ function setUiState(nextState) {
         toggleElementDisplay(downloadErrorsJsonBtn, hasErrors, 'inline-flex');
         toggleElementDisplay(resetSessionBtn, true, 'inline-flex');
         generateBtn.disabled = !hasRows;
+        if (hasGeneratedItems || hasErrors) {
+            setPreviewEmptyStateMessage('');
+        } else {
+            setPreviewEmptyStateMessage('Nessun risultato disponibile. Verifica i dati e riprova.');
+        }
         break;
     case APP_STATES.ERROR:
         toggleElementDisplay(progressContainer, false);
@@ -152,10 +162,13 @@ function setUiState(nextState) {
         toggleElementDisplay(previewFilters, hasPreviewEntries, 'flex');
         toggleElementDisplay(stats, hasRows, 'block');
         generateBtn.disabled = !hasRows;
+        setPreviewEmptyStateMessage('Si è verificato un errore. Correggi il file e riprova.');
         break;
     default:
         throw new Error(`Stato UI non supportato: ${nextState}`);
     }
+
+    renderPreviewEmptyState(nextState);
 }
 
 // Upload area events
@@ -402,7 +415,36 @@ function renderPreview() {
 
     updatePreviewFilterCounts();
     updatePreviewFilterButtons();
+    renderPreviewEmptyState();
     lucide.createIcons();
+}
+
+function setPreviewEmptyStateMessage(message) {
+    previewEmptyStateText.textContent = message;
+}
+
+function renderPreviewEmptyState(currentState = APP_STATES.IDLE) {
+    const filteredEntries = getFilteredPreviewEntries(previewEntries, currentPreviewFilter);
+    const shouldShow = filteredEntries.length === 0;
+    toggleElementDisplay(previewEmptyState, shouldShow, 'flex');
+
+    if (!shouldShow) {
+        return;
+    }
+
+    if (previewEntries.length > 0 && currentPreviewFilter !== PREVIEW_FILTERS.ALL) {
+        const filterLabels = {
+            [PREVIEW_FILTERS.SUCCESS]: 'successi',
+            [PREVIEW_FILTERS.ERROR]: 'errori'
+        };
+        const selectedFilterLabel = filterLabels[currentPreviewFilter] || 'risultati';
+        setPreviewEmptyStateMessage(`Nessun ${selectedFilterLabel} con il filtro selezionato.`);
+        return;
+    }
+
+    if (currentState === APP_STATES.COMPLETED && previewEntries.length === 0) {
+        setPreviewEmptyStateMessage('Nessun risultato disponibile. Verifica i dati e riprova.');
+    }
 }
 
 function updatePreviewFilterCounts() {
