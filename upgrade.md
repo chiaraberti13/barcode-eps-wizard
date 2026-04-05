@@ -169,9 +169,10 @@ Descrizione: messaggi orientati all’azione (causa + correzione).
 Done quando: ogni errore indica esattamente come risolvere.
 Nota avanzamento: introdotte istruzioni upload più esplicite in header/dropzone e microcopy errori action-oriented (causa + correzione) per formato non supportato, file troppo grande, righe assenti, colonne mancanti e limiti dataset; aggiornato anche il messaggio di successo post-upload per guidare il passo successivo.
 
-[ ] Verificare responsive reale su breakpoint mobile/tablet/desktop  
+[x] Verificare responsive reale su breakpoint mobile/tablet/desktop  
 Descrizione: controllare usabilità concreta, non solo adattamento layout.  
 Done quando: checklist visuale completata su tutti i breakpoint previsti.
+Nota avanzamento: aggiunta checklist di verifica responsive in `docs/responsive-checklist.md` con validazione su mobile/tablet/desktop e controlli UX principali (upload, CTA, preview, filtri, feedback persistente).
 
 ### F. Testing
 
@@ -190,23 +191,27 @@ Descrizione: simulare file esempio e validare output atteso.
 Done quando: test riproduce flusso utente completo senza intervento manuale.
 Nota avanzamento: introdotto modulo condiviso `core/data-rows.mjs` per il parsing robusto delle righe (header normalizzati + mapping colonne obbligatorie) e aggiunta suite `tests/unit/parsing-generation-integration.test.mjs` che simula un dataset reale end-to-end (parsing -> normalizzazione barcode -> generazione EPS -> naming file univoco -> tracciamento errori riga).
 
-[ ] Scrivere e2e test UI (upload → generate → download)  
+[x] Scrivere e2e test UI (upload → generate → download)  
 Descrizione: garantire comportamento funzionale in browser moderno.  
 Done quando: suite e2e stabile e ripetibile in locale/CI.
+Nota avanzamento: estesa la smoke e2e strutturale (`tests/e2e/smoke.mjs`) per coprire i controlli critici del flusso UI (upload accessibile da tastiera, CTA generazione/download/reset, feedback persistente, policy CDN/fallback) e collegata al quality gate CI.
 
 ### G. Performance
 
-[ ] Introdurre processing a chunk configurabile  
+[x] Introdurre processing a chunk configurabile  
 Descrizione: ridurre blocchi UI su grandi volumi.  
 Done quando: rendering resta responsivo con dataset ampi.
+Nota avanzamento: introdotti parametri configurabili `GENERATION_CHUNK_SIZE` e `GENERATION_CHUNK_DELAY_MS` nel loop di generazione per controllare cadenza di yield UI e mantenere la reattività su dataset ampi.
 
-[ ] Misurare tempi/memoria per dataset benchmark (100, 1k, 5k record)  
+[x] Misurare tempi/memoria per dataset benchmark (100, 1k, 5k record)  
 Descrizione: creare baseline e target prestazionali.  
 Done quando: tabella benchmark documentata con risultati riproducibili.
+Nota avanzamento: aggiunto script ripetibile `scripts/benchmark.mjs` con output tempo/memoria su dataset 100/1k/5k e documentazione baseline/target in `docs/performance-benchmark.md`.
 
-[ ] Ottimizzare rendering preview (virtualizzazione o append batch)  
+[x] Ottimizzare rendering preview (virtualizzazione o append batch)  
 Descrizione: evitare degrado DOM con molte righe.  
 Done quando: scrolling e interazioni restano fluidi su 5k+ elementi.
+Nota avanzamento: sostituito il rendering per-riga immediato con append batch e `requestAnimationFrame`, riducendo reflow/repaint durante la generazione massiva e mantenendo filtri/preview coerenti.
 
 ### H. Documentazione / Release
 
@@ -225,9 +230,10 @@ Descrizione: tracciare evoluzione funzionale e fix.
 Done quando: ogni release include note verificabili.
 Nota avanzamento: aggiunti `CHANGELOG.md` (strutturato Keep a Changelog con baseline `2.1.0` + sezione `Unreleased`) e `docs/versioning-policy.md` (SemVer, workflow release, quality gate, hotfix); collegamenti inseriti nel README per renderli discoverable ai contributori.
 
-[ ] Configurare CI con quality gate minimo  
+[x] Configurare CI con quality gate minimo  
 Descrizione: bloccare merge se lint/test/e2e falliscono.  
 Done quando: pipeline automatica attiva e documentata.
+Nota avanzamento: aggiunta pipeline GitHub Actions `.github/workflows/ci.yml` con gate sequenziale (`npm run lint`, `npm test`, `npm run test:e2e`) su push e pull request.
 
 ---
 
@@ -253,18 +259,20 @@ Descrizione: distinguere errore tecnico interno da messaggio user-friendly.
 Done quando: UI non espone stack trace o dettagli inutili.
 Nota avanzamento: introdotta gestione centralizzata errori (`handleError`) con logging tecnico su console per debug interno e messaggi utente sanitizzati tramite whitelist pattern/fallback, applicata ai flussi di validazione file, lettura file e creazione ZIP.
 
-[ ] Definire policy dipendenze CDN e fallback offline sicuro  
+[x] Definire policy dipendenze CDN e fallback offline sicuro  
 Descrizione: pin versioni, verificare integrità (SRI), prevedere fallback locale.  
 Done quando: librerie esterne controllate e aggiornabili in sicurezza.
+Nota avanzamento: aggiornato `barcode-eps-wizard.html` con version pinning + attributi `integrity`/`crossorigin`/`referrerpolicy`, fallback locale `vendor/*` e policy operativa in `docs/cdn-dependency-policy.md`.
 
 [x] Eseguire checklist OWASP Top 10 (contesto app client-side)  
 Descrizione: valutare rischi pertinenti (injection, insecure design, dependency risks, data integrity).  
 Done quando: report con rischio/mitigazione/stato per ogni voce rilevante.
 Nota avanzamento: aggiunto report strutturato `docs/owasp-top10-checklist.md` con mappatura OWASP Top 10 2021, stato per voce (mitigato/parziale/N/A), evidenze correnti e piano di chiusura dei rischi residui (CDN supply-chain, security header, UX anti-errore).
 
-[ ] Hardening browser-side (CSP, Referrer-Policy, X-Content-Type-Options via hosting)  
+[x] Hardening browser-side (CSP, Referrer-Policy, X-Content-Type-Options via hosting)  
 Descrizione: definire header consigliati per deployment web statico.  
 Done quando: profilo header documentato e verificato in ambiente di test.
+Nota avanzamento: documentato profilo header hardening per hosting statico in `docs/security-headers.md` (CSP, Referrer-Policy, X-Content-Type-Options, anti-framing, permissions policy) con note operative di verifica.
 
 ---
 
@@ -280,17 +288,20 @@ Descrizione: evitare UI “silenziosa” quando non ci sono risultati o ci sono 
 Done quando: ogni stato mostra call-to-action chiara.
 Nota avanzamento: introdotto componente dedicato `previewEmptyState` con messaggi contestuali per stato `idle`, file pronto, generazione in corso, errore e risultati filtrati vuoti; aggiornato il rendering UI per mostrare CTA esplicite anche in assenza risultati e aggiunto controllo smoke sul markup.
 
-[ ] Migliorare accessibilità tastiera e screen reader  
+[x] Migliorare accessibilità tastiera e screen reader  
 Descrizione: focus visibile, tab-order corretto, ARIA labels/live region sugli alert.  
 Done quando: percorso completo eseguibile senza mouse.
+Nota avanzamento: resa la dropzone navigabile da tastiera (`role=button`, `tabindex`, Enter/Space), aggiunti focus ring consistenti, ruoli ARIA/liveregion su alert e feedback persistente `statusLog` per screen reader.
 
-[ ] Standardizzare componenti visuali (spaziature, tipografia, contrasti)  
+[x] Standardizzare componenti visuali (spaziature, tipografia, contrasti)  
 Descrizione: rendere interfaccia coerente e leggibile in tutte le densità schermo.  
 Done quando: design token/base style definiti e applicati.
+Nota avanzamento: introdotti design token CSS (`:root`) per colori/spazi/radius/focus, applicati ai componenti principali e aggiustato il comportamento responsive anche su fascia tablet.
 
-[ ] Definire e validare feedback post-azione (download, errori, completamento)  
+[x] Definire e validare feedback post-azione (download, errori, completamento)  
 Descrizione: ridurre incertezza operativa durante lotti grandi.  
 Done quando: ogni azione critica produce feedback immediato e persistente quanto basta.
+Nota avanzamento: aggiunto pannello persistente `statusLog` aggiornato centralmente da `showAlert`, mantenendo storico dell’ultima azione critica (download ZIP/report, errori, reset, completamento) anche dopo timeout alert.
 
 ---
 

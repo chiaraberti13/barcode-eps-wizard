@@ -58,6 +58,7 @@ npm run format
 npm run test
 npm run test:e2e
 npm run build-check
+npm run benchmark
 ```
 
 **Script meaning:**
@@ -66,12 +67,17 @@ npm run build-check
 - `npm run test`: unit smoke checks for core project assumptions
 - `npm run test:e2e`: end-to-end smoke check on core UI structure
 - `npm run build-check`: aggregate command (`lint` + `test` + `test:e2e`) for CI/local gate
+- `npm run benchmark`: baseline performance benchmark for 100/1k/5k rows
 
 ## 🗂️ VERSIONING & RELEASE
 
 - Project versioning follows **Semantic Versioning** (`MAJOR.MINOR.PATCH`).
 - Release history is tracked in [`CHANGELOG.md`](./CHANGELOG.md) using Keep a Changelog sections.
 - Internal release process and quality gate policy are documented in [`docs/versioning-policy.md`](./docs/versioning-policy.md).
+- CI quality gate is defined in [`.github/workflows/ci.yml`](./.github/workflows/ci.yml).
+- Security deployment headers are documented in [`docs/security-headers.md`](./docs/security-headers.md).
+- CDN hardening and fallback policy is documented in [`docs/cdn-dependency-policy.md`](./docs/cdn-dependency-policy.md).
+- Responsive checklist and performance baseline are in [`docs/responsive-checklist.md`](./docs/responsive-checklist.md) and [`docs/performance-benchmark.md`](./docs/performance-benchmark.md).
 
 ## 🚀 HOW TO USE IN 3 STEPS
 
