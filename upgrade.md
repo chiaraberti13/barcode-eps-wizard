@@ -220,9 +220,10 @@ Descrizione: facilitare onboarding di nuovi sviluppatori/agenti.
 Done quando: esiste documento con moduli, flussi e responsabilità.
 Nota avanzamento: aggiunto `docs/architecture.md` con panoramica architetturale, responsabilità dei moduli (`app.js` + `core/*`), flussi end-to-end, decisioni tecniche, convenzioni operative per contributori e checklist di debug rapido.
 
-[ ] Aggiungere changelog e policy versioning  
+[x] Aggiungere changelog e policy versioning  
 Descrizione: tracciare evoluzione funzionale e fix.  
 Done quando: ogni release include note verificabili.
+Nota avanzamento: aggiunti `CHANGELOG.md` (strutturato Keep a Changelog con baseline `2.1.0` + sezione `Unreleased`) e `docs/versioning-policy.md` (SemVer, workflow release, quality gate, hotfix); collegamenti inseriti nel README per renderli discoverable ai contributori.
 
 [ ] Configurare CI con quality gate minimo  
 Descrizione: bloccare merge se lint/test/e2e falliscono.  

@@ -67,6 +67,12 @@ npm run build-check
 - `npm run test:e2e`: end-to-end smoke check on core UI structure
 - `npm run build-check`: aggregate command (`lint` + `test` + `test:e2e`) for CI/local gate
 
+## 🗂️ VERSIONING & RELEASE
+
+- Project versioning follows **Semantic Versioning** (`MAJOR.MINOR.PATCH`).
+- Release history is tracked in [`CHANGELOG.md`](./CHANGELOG.md) using Keep a Changelog sections.
+- Internal release process and quality gate policy are documented in [`docs/versioning-policy.md`](./docs/versioning-policy.md).
+
 ## 🚀 HOW TO USE IN 3 STEPS
 
 ### Step 1: Open the application
