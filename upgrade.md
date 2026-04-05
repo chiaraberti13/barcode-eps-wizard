@@ -86,6 +86,11 @@ Descrizione: allineare indentazione, newline, encoding e naming file/funzioni.
 Done quando: regole visibili nel repo e rispettate dal codice.
 Nota avanzamento: aggiunto `.editorconfig` con regole cross-platform (UTF-8, LF, newline finale, indentazione a 2 spazi) e documentate convenzioni di naming in README per JavaScript/CSS/file.
 
+[x] Ridurre rumore del warning ambiente npm `Unknown env config "http-proxy"` nei quality gate locali  
+Descrizione: mitigare il warning pre-esistente evitando esecuzioni annidate di `npm run` e documentare la bonifica della configurazione ambiente.  
+Done quando: `build-check` non usa più catene annidate e README contiene istruzioni di cleanup per l’ambiente locale.
+Nota avanzamento: sostituita la catena `npm run lint && npm run test && npm run test:e2e` con orchestrazione Node dedicata (`scripts/build-check.mjs`) e aggiunta sezione troubleshooting in README con causa/impatto/azioni consigliate per ripulire le env npm non standard.
+
 ### B. Backend logic (client-side core)
 
 [x] Estrarre la logica EAN-13 in modulo isolato testabile  

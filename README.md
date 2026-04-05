@@ -224,6 +224,16 @@ The generated ZIP file contains all compressed barcodes. Approximate size:
 2. If you exceed this, generate barcodes in groups
 3. Download files individually instead of ZIP
 
+### Warning npm: `Unknown env config "http-proxy"`
+**Cause:** local shell/environment exports an npm config key using a non-standard env name (`npm_config_http-proxy`).  
+**Impact:** non-blocking warning only; quality checks and tests still run.  
+**Suggested cleanup (next iteration):**
+1. Inspect npm-related env vars (`env | grep -i npm_config_`)
+2. Remove invalid keys that contain `-` and keep underscore variants (for example `npm_config_http_proxy`)
+3. Open a new shell session and rerun `npm run build-check`
+
+`build-check` now runs Node scripts directly in sequence (no nested `npm run` chain), which reduces repeated warning noise during the local quality gate.
+
 ---
 
 ## 📁 GENERATED FILE STRUCTURE

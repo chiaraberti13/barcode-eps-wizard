@@ -7,7 +7,7 @@
     "lint": "node scripts/lint.mjs && node scripts/format-check.mjs",
     "test": "node --test tests/unit/*.test.mjs",
     "test:e2e": "node tests/e2e/smoke.mjs",
-    "build-check": "npm run lint && npm run test && npm run test:e2e",
+    "build-check": "node scripts/build-check.mjs",
     "format": "node scripts/format-check.mjs",
     "benchmark": "node scripts/benchmark.mjs"
   }
